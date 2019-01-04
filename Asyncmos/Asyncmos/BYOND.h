@@ -14,7 +14,6 @@
 
 namespace BYOND
 {
-
 	class Variables {
 	public:
 		enum class ObjectType {
