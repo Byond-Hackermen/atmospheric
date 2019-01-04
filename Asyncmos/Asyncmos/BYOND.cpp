@@ -2,6 +2,8 @@
 #include "BYOND.h"
 #include "Pocket/Utilities.h"
 
+std::map<std::string, int> BYOND::Variables::stringTable;
+
 BYOND::Variables::Variables()
 {
 }
@@ -9,19 +11,29 @@ BYOND::Variables::~Variables()
 {
 }
 
-int BYOND::Variables::ReadVariable(char type, int datumId, int varNameId)
+char* BYOND::Variables::getStringFromId(int id)
+{
+	return *getStringPointerFromId(id);
+}
+
+int BYOND::Variables::ReadVariable(ObjectType type, int datumId, std::string varName)
 {
 	return 0xDEADB33F;
 }
 void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value)
 {
-	setVariable(type, datumId, BYONDSTR(varName), varType, (float)(int)new_value);
+	setVariable(type, datumId, BYONDSTR(varName), varType, (void*)new_value);
+}
+
+void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value)
+{
+	setVariable(type, datumId, BYONDSTR(varName), varType, (void*)*(uint_fast32_t*)&new_value);
 }
 
 
 void BYOND::Variables::GenerateStringTable()
 {
-	char* current_char = (char*)Pocket::FindPattern(0x00700000, 0x00A00000, "45 78 69 74 00 45 6E 74 65 72 00 4E 65 77 00"); //CHANGE 0x007000000 - WONT CATCH ALL POSSIBLE ADDRESSES
+	char* current_char = getStringFromId(1);
 	int current_string_id = 1;
 	std::string current_name;
 	while (true)
@@ -32,7 +44,7 @@ void BYOND::Variables::GenerateStringTable()
 		}
 		else
 		{
-			StringTable[current_name] = current_string_id;
+			stringTable[current_name] = current_string_id;
 			if (*(current_char + 1) == 0x00) {
 				break;
 			}
@@ -43,10 +55,13 @@ void BYOND::Variables::GenerateStringTable()
 	}
 }
 
-void BYOND::Variables::get_function_pointers()
+void BYOND::Variables::GetFunctionPointers()
 {
 	HMODULE byondCore = GetModuleHandleA("byondcore.dll");
 	MODULEINFO mod_info;
 	GetModuleInformation(GetCurrentProcess(), byondCore, &mod_info, sizeof(mod_info));
 	setVariable = (SetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 57 8B 7D 10 83 F8");
+	getVariable = (GetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 F1");
+	getStringPointerFromId = (GetStringPointerFromIdPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D D0 17 3E 73 73 10 A1 CC 17 3E 73 8B 04 88 85 C0 0F 85 87 00 00 00 83 3D A4 29 3E 73 00");
+		
 }

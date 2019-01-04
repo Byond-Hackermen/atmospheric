@@ -8,14 +8,16 @@
 
 #include "Pocket/Utilities.h"
 
-#define BYONDSTR(x) StringTable[x]
+#define BYONDSTR(x) (DWORD)BYOND::Variables::stringTable[x]
+
+#define STRING_TABLE_PTR_OFFSET 
 
 namespace BYOND
 {
 
 	class Variables {
 	public:
-		enum ObjectType {
+		enum class ObjectType {
 			Turf = 0x1,
 			Obj = 0x2,
 			Mob = 0x3,
@@ -28,25 +30,34 @@ namespace BYOND
 			Datum = 0x21,
 			Savefile = 0x23
 		};
-		enum VariableType {
-			Integer = 0x2a,
-			String = 0x06
+		enum class VariableType {
+			Number = 0x2A,
+			String = 0x06,
+			List = 0x0F,
 		};
+
 		Variables();
 		~Variables();
 
-		std::map<std::string, int> StringTable;
+		static std::map<std::string, int> stringTable;
 
 		void GenerateStringTable();
-		void get_function_pointers();
+		void GetFunctionPointers();
 
-		typedef void(__stdcall SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
+		typedef void(__cdecl SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, void* newValue);
+		typedef void(__cdecl GetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId);
+		typedef char**(__cdecl GetStringPointerFromIdPtr)(int stringId);
 
 		SetVariablePtr* setVariable;
+		GetVariablePtr* getVariable;
+		GetStringPointerFromIdPtr* getStringPointerFromId;
+
+		char* getStringFromId(int id);
 
 	public:
-		int ReadVariable(char type, int datumId, int varNameId);
+		int ReadVariable(ObjectType type, int datumId, std::string varName);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value);
+		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value);
 	};
 
 };
