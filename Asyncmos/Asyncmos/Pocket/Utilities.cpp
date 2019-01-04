@@ -77,13 +77,13 @@ DWORD Pocket::FindPattern(DWORD rangeStart, DWORD rangeEnd, const char* pattern)
 	return NULL;
 }
 
-std::string Pocket::tohex(int i) {
+std::string Pocket::IntegerToStrHex(int i) {
 	std::stringstream ss;
 	ss << std::hex << i;
 	return ss.str();
 }
 
-float Pocket::dw2float(DWORD i)
+float Pocket::DwordToFloat(DWORD i)
 {
 	union {
 		DWORD w;
