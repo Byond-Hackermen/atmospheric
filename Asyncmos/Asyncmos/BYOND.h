@@ -53,12 +53,14 @@ namespace BYOND
 		typedef char**(__cdecl GetStringPointerFromIdPtr)(int stringId);
 		typedef ByondList*(__cdecl GetListPointerPtr)(int listId);
 		typedef void(__cdecl AppendToContainerPtr)(VariableType containerType, int containerId, VariableType varType, void* varValue);
+		typedef void(__cdecl RemoveFromContainerPtr)(VariableType containerType, int containerId, VariableType varType, void* varValue);
 
 		static SetVariablePtr* setVariable;
 		static GetVariablePtr* getVariable;
 		static GetStringPointerFromIdPtr* getStringPointerFromId;
 		static GetListPointerPtr* getListPointer;
 		static AppendToContainerPtr* appendToContainer;
+		static RemoveFromContainerPtr* removeFromContainer;
 
 		char* getCStringFromId(int id);
 
