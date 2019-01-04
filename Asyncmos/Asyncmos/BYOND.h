@@ -8,7 +8,7 @@
 
 #include "Pocket/Utilities.h"
 
-#define BYONDSTR(x) StringTable.operator[x]
+#define BYONDSTR(x) StringTable.operator[](x)
 
 typedef void(SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
 
