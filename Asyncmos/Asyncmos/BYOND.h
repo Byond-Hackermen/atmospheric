@@ -38,6 +38,16 @@ namespace BYOND
 		struct ListElement {
 			VariableType type;
 			uint32_t value;
+
+			std::string asString(Variables v)
+			{
+				return v.getStringFromId(value);
+			}
+
+			float asNumber()
+			{
+				return Pocket::DwordToFloat(value);
+			}
 		};
 
 		struct ByondList {
@@ -49,6 +59,16 @@ namespace BYOND
 			DWORD unk3;
 			DWORD unk4;
 			DWORD unk5;
+
+			ListElement* at(DWORD i)
+			{
+				if(i < 0 || i > length)
+				{
+					return nullptr;
+				}
+				return elements + i;
+			}
+
 		};
 
 		Variables();
@@ -69,12 +89,13 @@ namespace BYOND
 		GetStringPointerFromIdPtr* getStringPointerFromId;
 		GetListPointerPtr* getListPointer;
 
-		char* getStringFromId(int id);
+		char* getCStringFromId(int id);
 
 	public:
 		int ReadVariable(ObjectType type, int datumId, std::string varName);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value);
+		std::string getStringFromId(int id);
 	};
 
 };

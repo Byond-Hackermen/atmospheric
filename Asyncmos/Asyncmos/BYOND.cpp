@@ -11,9 +11,14 @@ BYOND::Variables::~Variables()
 {
 }
 
-char* BYOND::Variables::getStringFromId(int id)
+char* BYOND::Variables::getCStringFromId(int id)
 {
 	return *getStringPointerFromId(id);
+}
+
+std::string BYOND::Variables::getStringFromId(int id)
+{
+	return std::string(getCStringFromId(id));
 }
 
 int BYOND::Variables::ReadVariable(ObjectType type, int datumId, std::string varName)
@@ -33,7 +38,7 @@ void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string var
 
 void BYOND::Variables::GenerateStringTable()
 {
-	char* current_char = getStringFromId(1);
+	char* current_char = getCStringFromId(1);
 	int current_string_id = 1;
 	std::string current_name;
 	while (true)
