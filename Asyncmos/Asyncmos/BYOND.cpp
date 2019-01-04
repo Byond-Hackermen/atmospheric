@@ -16,7 +16,7 @@ char* BYOND::Variables::getCStringFromId(int id)
 	return *getStringPointerFromId(id);
 }
 
-std::string BYOND::Variables::getStringFromId(int id)
+std::string BYOND::Variables::GetStringFromId(int id)
 {
 	return std::string(getCStringFromId(id));
 }
@@ -33,6 +33,15 @@ void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string var
 void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value)
 {
 	setVariable(type, datumId, BYONDSTR(varName), varType, *(void**)&new_value);
+}
+
+BYOND::List* BYOND::Variables::GetListFromId(int id)
+{
+	ByondList* list = getListPointer(id);
+	List* newlist = new List;
+	newlist->internalList = list;
+	newlist->ID = id;
+	return newlist;
 }
 
 
@@ -60,6 +69,12 @@ void BYOND::Variables::GenerateStringTable()
 	}
 }
 
+BYOND::Variables::SetVariablePtr* BYOND::Variables::setVariable = nullptr;
+BYOND::Variables::GetVariablePtr* BYOND::Variables::getVariable = nullptr;
+BYOND::Variables::GetStringPointerFromIdPtr* BYOND::Variables::getStringPointerFromId = nullptr;
+BYOND::Variables::GetListPointerPtr* BYOND::Variables::getListPointer = nullptr;
+BYOND::Variables::AppendToContainerPtr* BYOND::Variables::appendToContainer = nullptr;
+
 bool BYOND::Variables::GetFunctionPointers()
 {
 	HMODULE byondCore = GetModuleHandleA("byondcore.dll");
@@ -69,7 +84,8 @@ bool BYOND::Variables::GetFunctionPointers()
 	getVariable = (GetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 F1");
 	getStringPointerFromId = (GetStringPointerFromIdPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D D0 17 3E 73 73 10 A1 CC 17 3E 73 8B 04 88 85 C0 0F 85 87 00 00 00 83 3D A4 29 3E 73 00");
 	getListPointer = (GetListPointerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D 84 18 3E 73 73 11 A1 80 18 3E 73 8B 04 88 85 C0 74 05 FF 40 10");
-	if (!setVariable || !getVariable || !getStringPointerFromId || !getListPointer)
+	appendToContainer = (AppendToContainerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 56 83 F8 53 0F 87 B1 00 00 00 0F B6 80 DC 11 1E 73 FF 24 85 90 11 1E 73 FF 75 0C");
+	if (!setVariable || !getVariable || !getStringPointerFromId || !getListPointer || !appendToContainer)
 	{
 		return false;
 	}

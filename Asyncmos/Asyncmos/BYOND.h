@@ -14,63 +14,32 @@
 
 namespace BYOND
 {
+	enum class ObjectType {
+		Turf = 0x1,
+		Obj = 0x2,
+		Mob = 0x3,
+		Area = 0x4,
+		Client = 0x5,
+		Image = 0xD,
+		World = 0xE, //set datum id to null
+		Global = 0xE,
+		List = 0x54,
+		Datum = 0x21,
+		Savefile = 0x23
+	};
+
+	enum class VariableType {
+		Number = 0x2A,
+		String = 0x06,
+		List = 0x0F,
+	};
+
+	struct Object;
+	struct List;
+	struct ByondList;
+
 	class Variables {
 	public:
-		enum class ObjectType {
-			Turf = 0x1,
-			Obj = 0x2,
-			Mob = 0x3,
-			Area = 0x4,
-			Client = 0x5,
-			Image = 0xD,
-			World = 0xE, //set datum id to null
-			Global = 0xE,
-			List = 0x54,
-			Datum = 0x21,
-			Savefile = 0x23
-		};
-		enum class VariableType {
-			Number = 0x2A,
-			String = 0x06,
-			List = 0x0F,
-		};
-
-		struct ListElement {
-			VariableType type;
-			uint32_t value;
-
-			std::string asString(Variables v)
-			{
-				return v.getStringFromId(value);
-			}
-
-			float asNumber()
-			{
-				return Pocket::DwordToFloat(value);
-			}
-		};
-
-		struct ByondList {
-			ListElement* elements;
-			DWORD unk1;
-			DWORD unk2;
-			DWORD length;
-			DWORD refcount;
-			DWORD unk3;
-			DWORD unk4;
-			DWORD unk5;
-
-			ListElement* at(DWORD i)
-			{
-				if(i < 0 || i > length)
-				{
-					return nullptr;
-				}
-				return elements + i;
-			}
-
-		};
-
 		Variables();
 		~Variables();
 
@@ -79,15 +48,17 @@ namespace BYOND
 		void GenerateStringTable();
 		bool GetFunctionPointers();
 
-		typedef void(__cdecl SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, void* newValue);
-		typedef void(__cdecl GetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId);
+		typedef void(__cdecl SetVariablePtr)(ObjectType type, int datumId, int varNameId, VariableType varType, void* newValue);
+		typedef void(__cdecl GetVariablePtr)(ObjectType type, int datumId, int varNameId);
 		typedef char**(__cdecl GetStringPointerFromIdPtr)(int stringId);
 		typedef ByondList*(__cdecl GetListPointerPtr)(int listId);
+		typedef void(__cdecl AppendToContainerPtr)(VariableType containerType, int containerId, VariableType varType, void* varValue);
 
-		SetVariablePtr* setVariable;
-		GetVariablePtr* getVariable;
-		GetStringPointerFromIdPtr* getStringPointerFromId;
-		GetListPointerPtr* getListPointer;
+		static SetVariablePtr* setVariable;
+		static GetVariablePtr* getVariable;
+		static GetStringPointerFromIdPtr* getStringPointerFromId;
+		static GetListPointerPtr* getListPointer;
+		static AppendToContainerPtr* appendToContainer;
 
 		char* getCStringFromId(int id);
 
@@ -95,8 +66,74 @@ namespace BYOND
 		int ReadVariable(ObjectType type, int datumId, std::string varName);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value);
-		std::string getStringFromId(int id);
+		std::string GetStringFromId(int id);
+		List* GetListFromId(int id);
 	};
 
+	struct Object {
+		VariableType type;
+		void* value;
+
+		std::string AsString(Variables& v)
+		{
+			return v.GetStringFromId((DWORD)value);
+		}
+
+		float AsNumber()
+		{
+			return Pocket::DwordToFloat((DWORD)value);
+		}
+
+		VariableType Type()
+		{
+			return (VariableType)(BYTE)type;
+		}
+	};
+
+	struct ByondList {
+		Object* elements;
+		DWORD unk1;
+		DWORD unk2;
+		DWORD length;
+		DWORD refcount;
+		DWORD unk3;
+		DWORD unk4;
+		DWORD unk5;
+
+		Object* At(DWORD i)
+		{
+			if (i < 0 || i > length)
+			{
+				return nullptr;
+			}
+			return elements + i;
+		}
+	};
+
+	struct List
+	{
+		ByondList* internalList;
+		DWORD ID;
+
+		Object* At(DWORD i)
+		{
+			return internalList->At(i);
+		}
+
+		DWORD Length()
+		{
+			return internalList->length;
+		}
+
+		void Append(VariableType type, DWORD value)
+		{
+			Variables::appendToContainer(VariableType::List, ID, type, (void*)value);
+		}
+
+		void Append(VariableType type, float value)
+		{
+			Variables::appendToContainer(VariableType::List, ID, type, *(void**)&value);
+		}
+	};
 };
 
