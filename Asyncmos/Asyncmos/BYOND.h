@@ -42,15 +42,19 @@ namespace BYOND
 		};
 		Variables();
 		~Variables();
+		int ReadVariable(char type, int datumId, int varNameId);
+		int SetVariable(ObjectType type, int datumId, int varNameId, VariableType varType, DWORD new_value);
+
+		std::map<std::string, int> string_table;
+
+		Variables();
+		~Variables();
 
 		void generate_string_table();
 		void get_function_pointers();
 
 	public:
 		void set(datum_type d_type, datum_id id, std::string var_name, int var_type, void* new_value);
-		int ReadVariable(char type, int datumId, int varNameId);
-		int SetVariable(ObjectType type, int datumId, int varNameId, VariableType varType, DWORD new_value);
-
 	};
 };
 
