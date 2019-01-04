@@ -8,13 +8,13 @@
 
 #include "Pocket/Utilities.h"
 
-#define BYONDSTR(x) StringTable[x]
+#define BYONDSTR(x) StringTable.operator[x]
 
-typedef void(SetVariable)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
+typedef void(SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
 
 namespace BYOND
 {
-	SetVariable* set_number;
+	SetVariablePtr* setVariable;
 
 	class Variables {
 	public:
@@ -33,7 +33,7 @@ namespace BYOND
 		};
 		enum VariableType {
 			Integer = 0x2a,
-			String = 0x60
+			String = 0x06
 		};
 		Variables();
 		~Variables();
