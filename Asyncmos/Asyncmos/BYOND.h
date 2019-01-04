@@ -110,30 +110,17 @@ namespace BYOND
 		}
 	};
 
-	struct List
+	class List
 	{
 		ByondList* internalList;
 		DWORD ID;
+	public:
+		List(int id);
 
-		Object* At(DWORD i)
-		{
-			return internalList->At(i);
-		}
-
-		DWORD Length()
-		{
-			return internalList->length;
-		}
-
-		void Append(VariableType type, DWORD value)
-		{
-			Variables::appendToContainer(VariableType::List, ID, type, (void*)value);
-		}
-
-		void Append(VariableType type, float value)
-		{
-			Variables::appendToContainer(VariableType::List, ID, type, *(void**)&value);
-		}
+		Object* At(DWORD i);
+		DWORD Length();
+		void Append(VariableType type, DWORD value);
+		void Append(VariableType type, float value);
 	};
 };
 

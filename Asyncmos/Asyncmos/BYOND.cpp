@@ -34,13 +34,34 @@ void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string var
 {
 	setVariable(type, datumId, BYONDSTR(varName), varType, *(void**)&new_value);
 }
+BYOND::List::List(int id) {
+	ByondList* list = BYOND::Variables::getListPointer(id);
+	this->internalList = list;
+	this->ID = id;
+}
 
+BYOND::Object* BYOND::List::At(DWORD i)
+{
+	return internalList->At(i);
+}
+
+DWORD BYOND::List::Length()
+{
+	return internalList->length;
+}
+
+void BYOND::List::Append(VariableType type, DWORD value)
+{
+	Variables::appendToContainer(VariableType::List, ID, type, (void*)value);
+}
+
+void BYOND::List::Append(VariableType type, float value)
+{
+	Variables::appendToContainer(VariableType::List, ID, type, *(void**)&value);
+}
 BYOND::List* BYOND::Variables::GetListFromId(int id)
 {
-	ByondList* list = getListPointer(id);
-	List* newlist = new List;
-	newlist->internalList = list;
-	newlist->ID = id;
+	List* newlist = new List(id);
 	return newlist;
 }
 
