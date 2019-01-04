@@ -27,7 +27,7 @@ void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string var
 
 void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value)
 {
-	setVariable(type, datumId, BYONDSTR(varName), varType, (void*)*(uint_fast32_t*)&new_value);
+	setVariable(type, datumId, BYONDSTR(varName), varType, (void*)*(uint32_t*)&new_value);
 }
 
 
