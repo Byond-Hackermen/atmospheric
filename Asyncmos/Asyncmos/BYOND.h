@@ -35,7 +35,7 @@ namespace BYOND
 	};
 
 	struct Object;
-	struct List;
+	class List;
 	struct ByondList;
 
 	class Variables {
@@ -123,6 +123,8 @@ namespace BYOND
 		DWORD Length();
 		void Append(VariableType type, DWORD value);
 		void Append(VariableType type, float value);
+		void Remove(VariableType type, DWORD value);
+		void Remove(VariableType type, float value);
 	};
 };
 
