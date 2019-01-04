@@ -39,15 +39,15 @@ namespace BYOND
 
 		void GenerateStringTable();
 		void get_function_pointers();
+
+		typedef void(__stdcall SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
+
 		SetVariablePtr* setVariable;
 
 	public:
 		int ReadVariable(char type, int datumId, int varNameId);
-		int SetVariable(ObjectType type, int datumId, int varNameId, VariableType varType, DWORD new_value);
+		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value);
 	};
-
-
-	typedef void(SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
 
 };
 

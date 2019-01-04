@@ -8,7 +8,7 @@ const wchar_t* Pocket::GetWC(const char *c)
 {
 	const size_t cSize = strlen(c) + 1;
 	wchar_t* wc = new wchar_t[cSize];
-	mbstowcs(wc, c, cSize);
+	//std::mbstowcs_s(wc, c, cSize); //lol
 
 	return wc;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <TlHelp32.h>
+#include <cstdlib>
 
 namespace Pocket {
 	const wchar_t * GetWC(const char * c);

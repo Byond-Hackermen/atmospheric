@@ -11,10 +11,11 @@ BYOND::Variables::~Variables()
 
 int BYOND::Variables::ReadVariable(char type, int datumId, int varNameId)
 {
+	return 0xDEADB33F;
 }
-int BYOND::Variables::SetVariable(ObjectType type, int datumId, int varNameId, VariableType varType, DWORD new_value)
+void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value)
 {
-	setVariable(2, 0, BYONDSTR(varNameId), varType, (float)(int)new_value);
+	setVariable(type, datumId, BYONDSTR(varName), varType, (float)(int)new_value);
 }
 
 
