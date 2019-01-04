@@ -8,7 +8,7 @@
 
 #include "Pocket/Utilities.h"
 
-#define BYONDSTR(x) StringTable.operator[](x)
+#define BYONDSTR(x) StringTable[x]
 
 typedef void(SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
 
@@ -39,9 +39,6 @@ namespace BYOND
 		~Variables();
 
 		std::map<std::string, int> StringTable;
-
-		Variables();
-		~Variables();
 
 		void GenerateStringTable();
 		void get_function_pointers();
