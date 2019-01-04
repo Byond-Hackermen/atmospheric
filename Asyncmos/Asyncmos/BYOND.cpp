@@ -16,7 +16,7 @@ int BYOND::Variables::SetVariable(ObjectType type, int datumId, int varNameId, V
 }
 
 
-void BYOND::Variables::generate_string_table()
+void BYOND::Variables::GenerateStringTable()
 {
 	char* current_char = (char*)findPattern(0x00700000, 0x00A00000, "45 78 69 74 00 45 6E 74 65 72 00 4E 65 77 00"); //CHANGE 0x007000000 - WONT CATCH ALL POSSIBLE ADDRESSES
 	int current_string_id = 1;
@@ -29,7 +29,7 @@ void BYOND::Variables::generate_string_table()
 		}
 		else
 		{
-			string_table[current_name] = current_string_id;
+			StringTable[current_name] = current_string_id;
 			if (*(current_char + 1) == 0x00) {
 				break;
 			}

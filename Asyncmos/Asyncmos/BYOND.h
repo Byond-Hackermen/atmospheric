@@ -6,20 +6,15 @@
 #include <DbgHelp.h>
 #include <psapi.h>
 
-#include "Utils.h"
+#include "Pocket/Utilities.h"
 
-#define BYONDSTR(x) string_table[x]
+#define BYONDSTR(x) StringTable[x]
 
-typedef int datum_type;
-typedef int datum_id;
-
-typedef void(set_var_f)(datum_type type, datum_id id, int var_name_id, int var_type, float new_value);
-typedef void(set_var_i)(datum_type type, datum_id id, int var_name_id, int var_type, int new_value);
+typedef void(SetVariable)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, DWORD newValue);
 
 namespace BYOND
 {
-	set_var_f* set_number;
-	set_var_i* set_other;
+	SetVariable* set_number;
 
 	class Variables {
 	public:
@@ -42,19 +37,18 @@ namespace BYOND
 		};
 		Variables();
 		~Variables();
-		int ReadVariable(char type, int datumId, int varNameId);
-		int SetVariable(ObjectType type, int datumId, int varNameId, VariableType varType, DWORD new_value);
 
-		std::map<std::string, int> string_table;
+		std::map<std::string, int> StringTable;
 
 		Variables();
 		~Variables();
 
-		void generate_string_table();
+		void GenerateStringTable();
 		void get_function_pointers();
 
 	public:
-		void set(datum_type d_type, datum_id id, std::string var_name, int var_type, void* new_value);
+		int ReadVariable(char type, int datumId, int varNameId);
+		int SetVariable(ObjectType type, int datumId, int varNameId, VariableType varType, DWORD new_value);
 	};
 };
 

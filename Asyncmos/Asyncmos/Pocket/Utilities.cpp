@@ -48,3 +48,27 @@ HANDLE Pocket::GetProcessByName(const char * name)
 
 	return NULL;
 }
+
+DWORD Pocket::FindPattern(DWORD rangeStart, DWORD rangeEnd, const char* pattern)
+{
+	const char* pat = pattern;
+	DWORD firstMatch = 0;
+	for (DWORD pCur = rangeStart; pCur < rangeEnd; pCur++)
+	{
+		__try {
+			if (!*pat) return firstMatch;
+			if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat)) {
+				if (!firstMatch) firstMatch = pCur;
+				if (!pat[2]) return firstMatch;
+				if (*(PWORD)pat == '\?\?' || *(PBYTE)pat != '\?') pat += 3;
+				else pat += 2;
+			}
+			else {
+				pat = pattern;
+				firstMatch = 0;
+			}
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) { }
+	}
+	return NULL;
+}
