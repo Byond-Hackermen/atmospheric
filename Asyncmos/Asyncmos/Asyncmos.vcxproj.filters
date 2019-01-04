@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Pocket">
+      <UniqueIdentifier>{a91e3fdd-cc79-407d-92d5-e90c9ed4a0fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Pocket">
+      <UniqueIdentifier>{852d8569-cdea-4e78-ac32-d0c8a3706a8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -23,6 +29,9 @@
     </ClInclude>
     <ClInclude Include="BYOND.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pocket\Utilities.h">
+      <Filter>Header Files\Pocket</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -37,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="BYOND.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pocket\Utilities.cpp">
+      <Filter>Source Files\Pocket</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
