@@ -36,6 +36,22 @@ namespace BYOND
 			List = 0x0F,
 		};
 
+		struct ListElement {
+			VariableType type;
+			DWORD value;
+		};
+
+		struct ByondList {
+			ListElement* elements;
+			DWORD unk1;
+			DWORD unk2;
+			DWORD length;
+			DWORD refcount;
+			DWORD unk3;
+			DWORD unk4;
+			DWORD unk5;
+		};
+
 		Variables();
 		~Variables();
 
@@ -47,10 +63,12 @@ namespace BYOND
 		typedef void(__cdecl SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, void* newValue);
 		typedef void(__cdecl GetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId);
 		typedef char**(__cdecl GetStringPointerFromIdPtr)(int stringId);
+		typedef ByondList*(__cdecl GetListPointerPtr)(int listId);
 
 		SetVariablePtr* setVariable;
 		GetVariablePtr* getVariable;
 		GetStringPointerFromIdPtr* getStringPointerFromId;
+		GetListPointerPtr* getListPointer;
 
 		char* getStringFromId(int id);
 
