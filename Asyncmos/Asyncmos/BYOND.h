@@ -37,7 +37,7 @@ namespace BYOND
 
 		struct ListElement {
 			VariableType type;
-			DWORD value;
+			uint32_t value;
 		};
 
 		struct ByondList {
@@ -57,7 +57,7 @@ namespace BYOND
 		static std::map<std::string, int> stringTable;
 
 		void GenerateStringTable();
-		void GetFunctionPointers();
+		bool GetFunctionPointers();
 
 		typedef void(__cdecl SetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId, BYOND::Variables::VariableType varType, void* newValue);
 		typedef void(__cdecl GetVariablePtr)(BYOND::Variables::ObjectType type, int datumId, int varNameId);

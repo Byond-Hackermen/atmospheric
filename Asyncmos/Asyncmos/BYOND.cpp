@@ -55,7 +55,7 @@ void BYOND::Variables::GenerateStringTable()
 	}
 }
 
-void BYOND::Variables::GetFunctionPointers()
+bool BYOND::Variables::GetFunctionPointers()
 {
 	HMODULE byondCore = GetModuleHandleA("byondcore.dll");
 	MODULEINFO mod_info;
@@ -63,5 +63,10 @@ void BYOND::Variables::GetFunctionPointers()
 	setVariable = (SetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 57 8B 7D 10 83 F8");
 	getVariable = (GetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 F1");
 	getStringPointerFromId = (GetStringPointerFromIdPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D D0 17 3E 73 73 10 A1 CC 17 3E 73 8B 04 88 85 C0 0F 85 87 00 00 00 83 3D A4 29 3E 73 00");
-	getListPointer = (GetListPointerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D ?? ?? ?? ?? 73 11 A1 ?? ?? ?? ?? 8B 04 88 85 C0 74 05 FF 40 10 5D");
+	getListPointer = (GetListPointerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D 84 18 3E 73 73 11 A1 80 18 3E 73 8B 04 88 85 C0 74 05 FF 40 10");
+	if (!setVariable || !getVariable || !getStringPointerFromId || !getListPointer)
+	{
+		return false;
+	}
+	return true;
 }
