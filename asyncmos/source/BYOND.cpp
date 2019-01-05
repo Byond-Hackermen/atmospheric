@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "BYOND.h"
 #include "Pocket/Utilities.h"
 
