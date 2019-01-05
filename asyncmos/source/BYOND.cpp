@@ -3,13 +3,6 @@
 
 std::map<std::string, int> BYOND::Variables::stringTable;
 
-BYOND::Variables::Variables()
-{
-}
-BYOND::Variables::~Variables()
-{
-}
-
 char* BYOND::Variables::GetCStringFromId(int id)
 {
 	return *getStringPointerFromId(id);
