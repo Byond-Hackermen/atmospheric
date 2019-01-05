@@ -37,9 +37,6 @@ void test_run()
 
 #define msg(x, y) MessageBoxA(nullptr, x, y, MB_OK)
 
-
-std::vector<std::thread> threads;
-
 void foo()
 {
 	BYOND::Variables vars;
@@ -48,7 +45,6 @@ void foo()
 		msg("Failed to get all function pointers!", "heck");
 	}
 	vars.GenerateStringTable();
-	msg("Finished building table", "yay");
 
 	std::ofstream fout("strings.txt");
 	for (auto const& x : vars.stringTable)
@@ -61,9 +57,8 @@ void foo()
 
 BYOND_EXPORT(init)
 {
-	MessageBoxA(nullptr, "hi", "fucked", MB_OK);
-
-	threads.push_back(std::thread(foo));
+	std::thread t(foo);
+	t.detach();
 
 	return "test lol";
 }
