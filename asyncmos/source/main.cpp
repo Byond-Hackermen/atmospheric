@@ -43,6 +43,7 @@ void foo()
 	if (!vars.GetFunctionPointers())
 	{
 		msg("Failed to get all function pointers!", "heck");
+		return;
 	}
 	vars.GenerateStringTable();
 
@@ -51,8 +52,6 @@ void foo()
 	{
 		fout << x.first << std::endl;
 	}
-
-	MessageBoxA(nullptr, "done", "btw", MB_OK);
 }
 
 BYOND_EXPORT(init)
