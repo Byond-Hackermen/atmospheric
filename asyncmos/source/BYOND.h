@@ -15,24 +15,24 @@
 namespace BYOND
 {
 	enum class ObjectType {
-		Turf		= 0x01,
-		Obj			= 0x02,
-		Mob			= 0x03,
-		Area		= 0x04,
-		Client		= 0x05,
-		Image		= 0x0D,
-		World		= 0x0E, //set datum id to null
-		Global		= 0x0E,
-		Datum		= 0x21,
-		Savefile	= 0x23,
-		List		= 0x54
+		Turf = 0x1,
+		Obj = 0x2,
+		Mob = 0x3,
+		Area = 0x4,
+		Client = 0x5,
+		Image = 0xD,
+		World = 0xE, //set datum id to null
+		Global = 0xE,
+		List = 0x54,
+		Datum = 0x21,
+		Savefile = 0x23
 	};
 
 	enum class VariableType {
-		Mob			= 0x03,
-		String		= 0x06,
-		List		= 0x0F,
-		Number		= 0x2A
+		Number = 0x2A,
+		String = 0x06,
+		List = 0x0F,
+		Mob = 0x3,
 	};
 
 	struct Object;
