@@ -32,6 +32,7 @@ namespace BYOND
 		Number = 0x2A,
 		String = 0x06,
 		List = 0x0F,
+		Mob = 0x3,
 	};
 
 	struct Object;
@@ -54,6 +55,7 @@ namespace BYOND
 		typedef ByondList*(__cdecl GetListPointerPtr)(int listId);
 		typedef void(__cdecl AppendToContainerPtr)(VariableType containerType, int containerId, VariableType varType, void* varValue);
 		typedef void(__cdecl RemoveFromContainerPtr)(VariableType containerType, int containerId, VariableType varType, void* varValue);
+		typedef void(__cdecl ReadVariablePtr)(ObjectType type, int datumId, int varNameId);
 
 		static SetVariablePtr* setVariable;
 		static GetVariablePtr* getVariable;
@@ -61,11 +63,14 @@ namespace BYOND
 		static GetListPointerPtr* getListPointer;
 		static AppendToContainerPtr* appendToContainer;
 		static RemoveFromContainerPtr* removeFromContainer;
+		static ReadVariablePtr* readVariable;
+
+		DWORD* mob_list;
 
 		char* getCStringFromId(int id);
 
 	public:
-		int ReadVariable(ObjectType type, int datumId, std::string varName);
+		BYOND::Object ReadVariable(ObjectType type, int datumId, std::string varName);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value);
 		std::string GetStringFromId(int id);
