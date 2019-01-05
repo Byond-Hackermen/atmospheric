@@ -1,4 +1,3 @@
-#include "../stdafx.h"
 #include "Utilities.h"
 
 #define INRANGE(x,a,b)	(x >= a && x <= b) 
