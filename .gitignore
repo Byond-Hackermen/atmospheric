@@ -339,3 +339,11 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database 
 healthchecksdb
+
+
+# Ignore project files
+asyncmos/asyncmos/
+
+*.exp
+*.dll
+*.exe
