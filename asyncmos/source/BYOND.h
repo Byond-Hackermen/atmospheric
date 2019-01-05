@@ -41,8 +41,8 @@ namespace BYOND
 
 	class Variables {
 	public:
-		Variables();
-		~Variables();
+		Variables() {}
+		~Variables() {}
 
 		static std::map<std::string, int> stringTable;
 
