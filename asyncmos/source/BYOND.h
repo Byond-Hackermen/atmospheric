@@ -67,7 +67,7 @@ namespace BYOND
 
 		DWORD* mob_list;
 
-		char* GetCStringFromId(int id);
+		char* getCStringFromId(int id);
 
 	public:
 		BYOND::Object ReadVariable(ObjectType type, int datumId, std::string varName);

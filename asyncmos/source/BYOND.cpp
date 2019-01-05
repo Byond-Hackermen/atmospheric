@@ -11,14 +11,14 @@ BYOND::Variables::~Variables()
 {
 }
 
-char* BYOND::Variables::GetCStringFromId(int id)
+char* BYOND::Variables::getCStringFromId(int id)
 {
 	return *getStringPointerFromId(id);
 }
 
 std::string BYOND::Variables::GetStringFromId(int id)
 {
-	return std::string(GetCStringFromId(id));
+	return std::string(getCStringFromId(id));
 }
 
 BYOND::Object BYOND::Variables::ReadVariable(ObjectType type, int datumId, std::string varName)
@@ -95,7 +95,7 @@ BYOND::List* BYOND::Variables::GetListFromId(int id)
 
 void BYOND::Variables::GenerateStringTable()
 {
-	char* current_char = GetCStringFromId(1);
+	char* current_char = getCStringFromId(1);
 	int current_string_id = 1;
 	std::string current_name;
 	while (true)
@@ -141,6 +141,6 @@ bool BYOND::Variables::GetFunctionPointers()
 	{
 		return false;
 	}
-	mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
+	mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23);
 	return true;
 }
