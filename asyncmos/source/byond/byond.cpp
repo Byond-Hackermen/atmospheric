@@ -1,12 +1,7 @@
 #include "byond.h"
 
 #include <sstream>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-
-#endif
+#include "../pocket/utilities.h"
 
 
 std::string BYOND::GetByondAbout()
@@ -20,14 +15,13 @@ std::string BYOND::GetByondAbout()
 
 int BYOND::GetByondVersion()
 {
-#ifdef _WIN32
 	typedef int(*GetByondVersion)(void);
-	static auto getByondVersion = reinterpret_cast<GetByondVersion>(GetProcAddress(GetModuleHandleA("byondcore.dll"), "?GetByondVersion@ByondLib@@QAEJXZ"));
+#ifdef _WIN32
+	static GetByondVersion getByondVersion;
+	if(Pocket::ErrorHandling::IsValidPtr(getByondVersion) || Pocket::GetExport<GetByondVersion>(getByondVersion, "byondcore.dll", "?GetByondVersion@ByondLib@@QAEJXZ"))
+		return getByondVersion();
 
-	if (!getByondVersion)
-		return 0;
-
-	return getByondVersion();
+	return 0;
 #else
 	return 0; // TODO
 #endif
@@ -35,14 +29,13 @@ int BYOND::GetByondVersion()
 
 int BYOND::GetByondBuild()
 {
+	typedef int(*GetByondBuild)(void);
 #ifdef _WIN32
-	typedef int (*GetByondBuild)(void);
-	static auto getByondBuild = reinterpret_cast<GetByondBuild>(GetProcAddress(GetModuleHandleA("byondcore.dll"), "?GetByondBuild@ByondLib@@QAEJXZ"));
+	static GetByondBuild getByondBuild;
+	if (Pocket::ErrorHandling::IsValidPtr(getByondBuild) || Pocket::GetExport<GetByondBuild>(getByondBuild, "byondcore.dll", "?GetByondBuild@ByondLib@@QAEJXZ"))
+		return getByondBuild();
 
-	if (!getByondBuild)
-		return 0;
-
-	return getByondBuild();
+	return 0;
 #else
 	return 0; // TODO
 #endif
