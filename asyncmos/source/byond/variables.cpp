@@ -6,10 +6,6 @@
 #include "../pocket/utilities.h"
 #include "list.h"
 
-
-#include <chrono>
-#include <sstream>
-
 std::map<std::string, int> BYOND::Variables::stringTable;
 
 BYOND::Variables::SetVariablePtr*				BYOND::Variables::setVariable = nullptr;
