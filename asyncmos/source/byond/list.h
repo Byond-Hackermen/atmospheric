@@ -9,7 +9,7 @@ namespace BYOND
 
 
 	struct ByondList {
-		Object*** elements;
+		Object* elements;
 		int unk1;
 		int unk2;
 		int length;
