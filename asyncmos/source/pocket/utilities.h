@@ -12,7 +12,8 @@
 
 using DWORD = unsigned long;
 
-namespace Pocket {
+namespace Pocket
+{
 	const wchar_t* GetWC(const char* c);
 	std::string IntegerToStrHex(int i);
 	float DwordToFloat(DWORD i);
