@@ -1,9 +1,9 @@
 
 #include "interface.h"
 #include <Windows.h>
-#include "BYOND.h"
-#include <fstream>
 #include <thread>
+
+#include "byond/variables.h"
 
 /*
 void test_run()
@@ -46,8 +46,12 @@ void foo()
 		return;
 	}
 	vars.GenerateStringTable();
-	/*std::string var = vars.ReadGlobalVariable("second_global").AsString(vars);
-	msg(var.c_str(), "gi");*/
+
+	std::string var = vars.ReadGlobalVariable("game_version").AsString(vars);
+	msg(var.c_str(), "game_version");
+
+	const std::string about = BYOND::GetByondAbout();
+	msg(about.c_str(), "byond about");
 }
 
 BYOND_EXPORT(init)
