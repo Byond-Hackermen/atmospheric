@@ -33,6 +33,17 @@ BYOND::Object BYOND::Variables::ReadVariable(ObjectType type, int datumId, std::
 	}
 	return obj;
 }
+
+BYOND::Object BYOND::Variables::ReadWorldVariable(std::string name)
+{
+	return ReadVariable(BYOND::ObjectType::World, 0, name);
+}
+
+BYOND::Object BYOND::Variables::ReadGlobalVariable(std::string name)
+{
+	return ReadVariable(BYOND::ObjectType::Global, 0xDEADC0DE, name);
+}
+
 void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value)
 {
 	setVariable(type, datumId, BYONDSTR(varName), varType, (void*)new_value);
@@ -122,13 +133,13 @@ bool BYOND::Variables::GetFunctionPointers()
 	HMODULE byondCore = GetModuleHandleA("byondcore.dll");
 	MODULEINFO mod_info;
 	GetModuleInformation(GetCurrentProcess(), byondCore, &mod_info, sizeof(mod_info));
-	setVariable = (SetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 57");
-	getVariable = (GetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 ? ? ? ? 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? FF 75 10");
-	getStringPointerFromId = (GetStringPointerFromIdPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D ? ? ? ? 73 10");
-	getListPointer = (GetListPointerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D ? ? ? ? 73 11 A1 ? ? ? ? 8B 04 88 85 C0 74 05 FF 40 10 5D C3 6A 0F");
-	appendToContainer = (AppendToContainerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 56");
-	removeFromContainer = (RemoveFromContainerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 83 EC 0C 0F B6 C1 48 53");
-	readVariable = (ReadVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 ? ? ? ? 0F B6 80 ? ? ? ? FF 24 85 ? ? ? ? FF 75 10");
+	setVariable = (SetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 57 8B 7D 10 83 F8");
+	getVariable = (GetVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 F1");
+	getStringPointerFromId = (GetStringPointerFromIdPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D ?? ?? ?? ?? 73 10 A1 ?? ?? ?? ?? 8B 04 88 85 C0 0F 85 87 00 00 00 83 3D ?? ?? ?? ?? 00");
+	getListPointer = (GetListPointerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 3B 0D ?? ?? ?? ?? 73 11 A1 ?? ?? ?? ?? 8B 04 88 85 C0 74 05 FF 40 10");
+	appendToContainer = (AppendToContainerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 56 83 F8 53 0F 87 B1 00 00 00 0F B6 80 ?? ?? ?? ?? FF 24 85 ?? ?? ?? ?? FF 75 0C");
+	removeFromContainer = (RemoveFromContainerPtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 83 EC 0C 0F B6 C1 48 53 83 F8 53 0F 87 2D 01 00 00 0F B6 80 ?? ?? ?? ?? 8B 55 10 FF 24 85");
+	readVariable = (ReadVariablePtr*)Pocket::FindPattern((DWORD)byondCore, (DWORD)byondCore + (mod_info.SizeOfImage), "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 F1 00 00 00 0F B6 80 ?? ?? ?? ?? FF 24 85 ?? ?? ?? ?? FF 75 10 FF 75 0C E8 ?? ?? ?? ?? 83 C4 08 5D C3");
 	if (!setVariable || !getVariable || !getStringPointerFromId || !getListPointer || !appendToContainer || !removeFromContainer || !readVariable)
 	{
 		return false;

@@ -71,6 +71,8 @@ namespace BYOND
 
 	public:
 		BYOND::Object ReadVariable(ObjectType type, int datumId, std::string varName);
+		BYOND::Object ReadWorldVariable(std::string name);
+		BYOND::Object ReadGlobalVariable(std::string name);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, DWORD new_value);
 		void SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, float new_value);
 		std::string GetStringFromId(int id);
@@ -89,6 +91,11 @@ namespace BYOND
 		float AsNumber()
 		{
 			return Pocket::DwordToFloat((DWORD)value);
+		}
+
+		List* AsList(Variables& v)
+		{
+			return v.GetListFromId((DWORD)value);
 		}
 
 		VariableType Type()

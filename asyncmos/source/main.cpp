@@ -46,12 +46,8 @@ void foo()
 		return;
 	}
 	vars.GenerateStringTable();
-
-	std::ofstream fout("strings.txt");
-	for (auto const& x : vars.stringTable)
-	{
-		fout << x.first << std::endl;
-	}
+	/*std::string var = vars.ReadGlobalVariable("second_global").AsString(vars);
+	msg(var.c_str(), "gi");*/
 }
 
 BYOND_EXPORT(init)
