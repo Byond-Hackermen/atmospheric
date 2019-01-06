@@ -14,7 +14,7 @@ namespace BYOND
 	public:
 		static std::map<std::string, int> stringTable;
 
-		void GenerateStringTable();
+		void GenerateStringTable() const;
 		bool GetFunctionPointers();
 
 

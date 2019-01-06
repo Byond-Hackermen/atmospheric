@@ -4,6 +4,12 @@
 #include "sigscan.h"
 #include "errorhandling.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+
+#endif
+
 using DWORD = unsigned long;
 
 namespace Pocket {
@@ -35,5 +41,22 @@ namespace Pocket {
 		}
 
 		return false;
+	}
+
+	template<typename I>
+	bool GetExport(I& out, std::string moduleName, std::string exportName)
+	{
+#ifdef _WIN32
+		void* temp = GetProcAddress(GetModuleHandleA(moduleName.c_str()), exportName.c_str());
+		if (ErrorHandling::IsValidPtr(temp))
+		{
+			out = reinterpret_cast<I>(temp);
+			return true;
+		}
+
+		return false;
+#else
+		return false;
+#endif
 	}
 }

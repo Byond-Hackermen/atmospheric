@@ -1,7 +1,7 @@
 #include "object.h"
 
 #include "variables.h"
-#include "../Pocket/Utilities.h"
+#include "../pocket/utilities.h"
 
 
 std::string BYOND::Object::AsString(Variables& v) const
@@ -21,5 +21,5 @@ BYOND::List* BYOND::Object::AsList(Variables& v) const
 
 BYOND::VariableType BYOND::Object::Type() const
 {
-	return type;
+	return static_cast<VariableType>(static_cast<unsigned char>(type));
 }
