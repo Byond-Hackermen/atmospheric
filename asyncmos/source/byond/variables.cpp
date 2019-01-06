@@ -43,39 +43,11 @@ void BYOND::Variables::GenerateStringTable() const
 	}
 }
 
-#define INRANGE(x,a,b)	(x >= a && x <= b) 
-#define getBits( x )	(INRANGE((x&(~0x20)),'A','F') ? ((x&(~0x20)) - 'A' + 0xa) : (INRANGE(x,'0','9') ? x - '0' : 0))
-#define getByte( x )	(getBits(x[0]) << 4 | getBits(x[1]))
-DWORD FindPattern2(DWORD rangeStart, DWORD rangeEnd, const char* pattern)
-{
-	const char* pat = pattern;
-	DWORD firstMatch = 0;
-	for (DWORD pCur = rangeStart; pCur < rangeEnd; pCur++)
-	{
-		__try {
-			if (!*pat) return firstMatch;
-			if (*(PBYTE)pat == '\?' || *(BYTE*)pCur == getByte(pat)) {
-				if (!firstMatch) firstMatch = pCur;
-				if (!pat[2]) return firstMatch;
-				if (*(PWORD)pat == '\?\?' || *(PBYTE)pat != '\?') pat += 3;
-				else pat += 2;
-			}
-			else {
-				pat = pattern;
-				firstMatch = 0;
-			}
-		}
-		__except (EXCEPTION_EXECUTE_HANDLER) { }
-	}
-	return NULL;
-}
 
-bool BYOND::Variables::GetFunctionPointers()
+bool BYOND::Variables::GetFunctionPointers() const
 {
 	const auto rangeStart = reinterpret_cast<DWORD>(GetModuleHandleA("byondcore.dll"));
 	MODULEINFO miModInfo; GetModuleInformation(GetCurrentProcess(), reinterpret_cast<HMODULE>(rangeStart), &miModInfo, sizeof(MODULEINFO));
-
-	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
 	if (!Pocket::GetFunction<SetVariablePtr*>(setVariable, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 0F B6 C1 48 57"))
 		return false;
