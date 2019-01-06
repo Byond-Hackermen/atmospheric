@@ -26,7 +26,6 @@ namespace BYOND
 			}
 
 			return reinterpret_cast<Object*>(elements + i);
-			;
 		}
 	};
 
