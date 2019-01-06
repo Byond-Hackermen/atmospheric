@@ -16,10 +16,8 @@ inline bool Pocket::Sigscan::DataCompare(const unsigned char* base, const char* 
 	for (; *(pattern + 2); ++base, pattern += *(pattern + 1) == ' ' ? 2 : 3)
 	{
 		if (*pattern != '?')
-		{
 			if (*base != getByte(pattern))
 				return false;
-		}
 	}
 
 	return *(pattern + 2) == 0;
