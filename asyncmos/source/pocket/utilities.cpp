@@ -12,7 +12,8 @@ const wchar_t* Pocket::GetWC(const char *c)
 	return wc;
 }
 
-std::string Pocket::IntegerToStrHex(int i) {
+std::string Pocket::IntegerToStrHex(int i)
+{
 	std::stringstream ss;
 	ss << std::hex << i;
 	return ss.str();
