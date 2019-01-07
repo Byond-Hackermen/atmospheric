@@ -13,9 +13,9 @@ namespace BYOND
 		BYOND::VariableType type;
 		void* value;
 
-		std::string AsString(Variables& v) const;
+		std::string AsString() const;
 		float AsNumber() const;
-		List* AsList(Variables& v) const;
+		List* AsList() const;
 		VariableType Type() const;
 	};
 }
