@@ -22,6 +22,9 @@
 	var/obj_variable_string = "obj variable of type string"
 	var/list/obj_variable_list = list("obj variable list element 1", "obj variable list element 2")
 
+/obj/obj_type_1/proc/obj_test_proc()
+	world << "Obj test successful!"
+
 /obj/obj_type_2
 	name = "obj of type 2"
 
@@ -30,6 +33,9 @@
 	var/mob_variable_number = 5
 	var/mob_variable_string = "mob variable of type string"
 	var/list/mob_variable_list = list("mob variable list element 1", "mob variable list element 2")
+
+/mob/mob_type_1/proc/mob_test_proc()
+	world << "Mob test successful!"
 
 /mob/mob_type_2
 	name = "mob of type 2"
@@ -47,6 +53,9 @@ var/unimportant_var = "nothing"
 	global_variable_area = new
 	global_variable_obj = new
 	global_variable_mob = new
+	new /mob/mob_type_1
+	new /mob/mob_type_1
+	new /mob/mob_type_1
 	//no turf because of "bad loc" runtime
 	global.vars["unimportant_var"] = 5 //ensure global variable names are not optimized away
 
@@ -55,3 +64,6 @@ var/unimportant_var = "nothing"
 
 /client/verb/test_dll()
 	call("../asyncmos/asyncmos/debug/asyncmos.dll", "test")()
+
+/client/verb/call_mob_proc()
+	global_variable_mob.mob_test_proc(15)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include "byond.h"
 #include "object.h"
 
@@ -21,11 +22,15 @@ namespace BYOND
 
 	public:
 		BYOND::Object ReadVariable(BYOND::ObjectType type, int datumId, std::string varName);
+		BYOND::Object ReadVariable(BYOND::Object obj, std::string varName);
 		BYOND::Object ReadWorldVariable(std::string name);
 		BYOND::Object ReadGlobalVariable(std::string name);
 
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, int new_value) const;
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, float new_value) const;
+
+		void CallProc(BYOND::Object, std::string procName);
+		void CallProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
 
 		std::string GetStringFromId(int id) const;
 		List* GetListFromId(int id) const;
@@ -61,6 +66,9 @@ namespace BYOND
 
 		typedef void(__cdecl ReadVariablePtr)(BYOND::ObjectType type, int datumId, int varNameId);
 		static ReadVariablePtr* readVariable;
+
+		typedef void*(__cdecl CallProcPtr)(int unk1, int unk2, ProcType procType, int procName, ObjectType datumType, int datumId, Object* argList, int argListLen, int unk4, int unk5);
+		static CallProcPtr* callProc;
 	};
 }
 extern BYOND::Variables vars;

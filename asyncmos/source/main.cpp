@@ -93,7 +93,6 @@ BYOND_EXPORT(process)
 
 void perform_tests()
 {
-	msg(vars.ReadGlobalVariable("global_variable_string").AsString().c_str(), "test");
 	assert(vars.ReadGlobalVariable("global_variable_string").AsString() == "global variable of type string");
 	assert(vars.ReadGlobalVariable("global_variable_number").AsNumber() == static_cast<float>(5));
 	BYOND::List* list = vars.ReadGlobalVariable("global_variable_list").AsList();
@@ -101,6 +100,9 @@ void perform_tests()
 	assert(list->At(1)->AsString() == "global variable list element 2");
 
 	BYOND::Mob* mob = static_cast<BYOND::Mob*>(&vars.ReadGlobalVariable("global_variable_mob"));
+
+	vars.CallProc(*mob, "mob_test_proc");
+
 	assert(mob->GetVariable("mob_variable_number").AsNumber() == static_cast<float>(5));
 	assert(mob->GetVariable("mob_variable_string").AsString() == "mob variable of type string");
 	BYOND::List* mob_list_var = mob->GetVariable("mob_variable_list").AsList();
@@ -111,8 +113,10 @@ void perform_tests()
 BYOND_EXPORT(test)
 {
 	if (!vars.Ready())
+	{
 		msg("test() called before initializing library!", "Error!");
-
+		return nullptr;
+	}
 	std::thread t(perform_tests);
 	t.detach();
 

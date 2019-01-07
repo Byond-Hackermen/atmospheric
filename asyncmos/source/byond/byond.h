@@ -27,6 +27,12 @@ namespace BYOND
 		Number		= 0x2A
 	};
 
+	enum class ProcType
+	{
+		Proc		= 0x02,
+		Verb		= 0x15
+	};
+
 	std::string GetByondAbout();
 	int GetByondVersion();
 	int GetByondBuild();
