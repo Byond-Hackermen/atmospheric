@@ -347,3 +347,7 @@ asyncmos/asyncmos/
 *.exp
 *.dll
 *.exe
+
+*.int
+*.dmb
+*.lk
