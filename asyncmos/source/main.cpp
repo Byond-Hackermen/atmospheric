@@ -2,10 +2,13 @@
 #include <Windows.h>
 #include <thread>
 
+#include "pocket/utilities.h"
+#include "pocket/errorhandling.h"
+
 #include "byond/interface.h"
 #include "byond/variables.h"
-#include "pocket/utilities.h"
 #include "byond/list.h"
+#include "byond/mob.h"
 
 /*
 void test_run()
@@ -41,22 +44,17 @@ void test_run()
 
 void init_thread()
 {
-	//BYOND::Variables vars;
 	if (!vars.Initialize())
 	{
 		msg("Failed to initialize!", "heck");
-		return;
 	}
-
-	std::string var = vars.ReadGlobalVariable("game_version").AsString();
-	msg(var.c_str(), "game_version");
-
-	const std::string about = BYOND::GetByondAbout();
-	msg(about.c_str(), "byond about");
 }
 
 BYOND_EXPORT(init)
 {
+	if (vars.Ready())
+		return "already initialized";
+
 	std::thread t(init_thread);
 	t.detach();
 
@@ -67,14 +65,17 @@ BYOND_EXPORT(init)
 void process_thread()
 {
 	BYOND::List* lst = vars.ReadGlobalVariable("mob_list").AsList();
-	msg(Pocket::IntegerToStrHex((unsigned int)lst).c_str(), "address of mob list");
+	//msg(Pocket::IntegerToStrHex((unsigned int)lst).c_str(), "address of mob list");
 	for (int i = 0; i < lst->Length(); i++)
 	{
-		BYOND::Object* mob = lst->At(i);
+		BYOND::Mob* mob = static_cast<BYOND::Mob*>(lst->At(i));
+		if (!Pocket::ErrorHandling::IsValidPtr(mob))
+			continue;
+
 		//msg(Pocket::IntegerToStrHex((int)mob->value).c_str(), "mob value");
-		msg(vars.ReadVariable(BYOND::ObjectType::Mob, (int)mob->value, "color").AsString().c_str(), "mob color");
-		vars.SetVariable(BYOND::ObjectType::Mob, (int)mob->value, "color", BYOND::VariableType::String, BYONDSTR("#00FF00"));
-		msg(vars.ReadVariable(BYOND::ObjectType::Mob, (int)mob->value, "color").AsString().c_str(), "mob color");
+		msg(mob->GetVariable("color").AsString().c_str(), "mob color");
+		mob->SetVariable("color", BYOND::VariableType::String, BYONDSTR("#00FF00"));
+		msg(mob->GetVariable("color").AsString().c_str(), "mob color after update");
 	}
 }
 

@@ -1,12 +1,10 @@
 #pragma once
 
 #include "byond.h"
+#include "object.h"
 
 namespace BYOND
 {
-	struct Object;
-
-
 	struct ByondList {
 		Object* elements;
 		int unk1;
@@ -24,7 +22,7 @@ namespace BYOND
 				return nullptr;
 			}
 
-			return reinterpret_cast<Object*>(reinterpret_cast<unsigned long*>(elements) + i);
+			return elements + i;
 		}
 	};
 

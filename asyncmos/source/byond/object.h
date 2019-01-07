@@ -5,17 +5,17 @@
 
 namespace BYOND
 {
-	class Variables;
 	class List;
 
-	struct Object
+	class Object
 	{
+	public:
 		BYOND::VariableType type;
 		void* value;
 
 		std::string AsString() const;
 		float AsNumber() const;
-		List* AsList() const;
-		VariableType Type() const;
+		BYOND::List* AsList() const;
+		BYOND::VariableType Type() const;
 	};
 }
