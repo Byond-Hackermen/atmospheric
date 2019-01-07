@@ -14,8 +14,9 @@ namespace BYOND
 	public:
 		static std::map<std::string, int> stringTable;
 
-		void GenerateStringTable() const;
-		bool GetFunctionPointers() const;
+		bool Initialize();
+		bool Ready() const { return init_done; }
+		
 
 
 	public:
@@ -32,6 +33,12 @@ namespace BYOND
 
 	private:
 		void* mob_list = nullptr;
+		bool init_done = false;
+
+	private:
+		// Internal
+		void GenerateStringTable() const;
+		bool GetFunctionPointers() const;
 
 	public:
 		typedef void(__cdecl SetVariablePtr)(BYOND::ObjectType type, int datumId, int varNameId, BYOND::VariableType varType, void* newValue);
@@ -56,3 +63,4 @@ namespace BYOND
 		static ReadVariablePtr* readVariable;
 	};
 }
+extern BYOND::Variables vars;

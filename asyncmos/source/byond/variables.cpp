@@ -6,6 +6,9 @@
 #include "../pocket/utilities.h"
 #include "list.h"
 
+
+BYOND::Variables vars;
+
 std::map<std::string, int> BYOND::Variables::stringTable;
 
 BYOND::Variables::SetVariablePtr*				BYOND::Variables::setVariable = nullptr;
@@ -15,6 +18,20 @@ BYOND::Variables::GetListPointerPtr*			BYOND::Variables::getListPointer = nullpt
 BYOND::Variables::AppendToContainerPtr*			BYOND::Variables::appendToContainer = nullptr;
 BYOND::Variables::RemoveFromContainerPtr*		BYOND::Variables::removeFromContainer = nullptr;
 BYOND::Variables::ReadVariablePtr*				BYOND::Variables::readVariable = nullptr;
+
+
+
+
+bool BYOND::Variables::Initialize()
+{
+	if (!GetFunctionPointers())
+		return false;
+
+	GenerateStringTable();
+	init_done = true;
+
+	return true;
+}
 
 void BYOND::Variables::GenerateStringTable() const
 {
@@ -76,8 +93,6 @@ bool BYOND::Variables::GetFunctionPointers() const
 
 	return true;
 }
-
-
 
 
 BYOND::Object BYOND::Variables::ReadVariable(ObjectType type, int datumId, std::string varName)

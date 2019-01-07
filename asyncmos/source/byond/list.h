@@ -1,7 +1,6 @@
 #pragma once
 
 #include "byond.h"
-#include "object.h"
 
 namespace BYOND
 {
@@ -25,7 +24,7 @@ namespace BYOND
 				return nullptr;
 			}
 
-			return reinterpret_cast<Object*>(elements + i);
+			return reinterpret_cast<Object*>(reinterpret_cast<unsigned long*>(elements) + i);
 		}
 	};
 
