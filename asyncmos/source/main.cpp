@@ -100,6 +100,8 @@ void perform_tests()
 	assert(list->At(1)->AsString() == "global variable list element 2");
 
 	BYOND::Mob* mob = static_cast<BYOND::Mob*>(&vars.ReadGlobalVariable("global_variable_mob"));
+	assert(mob->Type() == BYOND::VariableType::Mob);
+	assert(mob->value == 0);
 
 	vars.CallProc(*mob, "mob_test_proc");
 

@@ -69,28 +69,53 @@ bool BYOND::Variables::GetFunctionPointers() const
 	MODULEINFO miModInfo; GetModuleInformation(GetCurrentProcess(), reinterpret_cast<HMODULE>(rangeStart), &miModInfo, sizeof(MODULEINFO));
 
 	if (!Pocket::GetFunction<SetVariablePtr*>(setVariable, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 0F B6 C1 48 57 8B 7D 10 83 F8 53 0F ?? ?? ?? ?? ?? 0F B6 80 ?? ?? ?? ?? FF 24 85 ?? ?? ?? ?? FF 75 18 FF 75 14 57 FF 75 0C E8 ?? ?? ?? ?? 83 C4 10 5F 5D C3"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire setVariable", "oh no!", 0);
 		return false;
+	}
+
 	  
 	if (!Pocket::GetFunction<GetVariablePtr*>(getVariable, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 ?? ?? ?? ?? 0F B6 80 ?? ?? ?? ?? FF 24 85 ?? ?? ?? ?? FF 75 10"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire getVariable", "oh no!", 0);
 		return false;
+	}
 
 	if (!Pocket::GetFunction<GetStringPointerFromIdPtr*>(getStringPointerFromId, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 3B 0D ?? ?? ?? ?? 73 10 A1"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire getStringPointer", "oh no!", 0);
 		return false;
+	}
 
 	if (!Pocket::GetFunction<GetListPointerPtr*>(getListPointer, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 3B 0D ?? ?? ?? ?? 73 11 A1 ?? ?? ?? ?? 8B 04 88 85 C0 74 05 FF 40 10 5D C3 6A 0F 51 E8 ?? ?? ?? ?? 68 ?? ?? ?? ?? 52 50 E8 ?? ?? ?? ?? 83 C4 14 5D C3"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire getListPointer", "oh no!", 0);
 		return false;
+	}
 
 	if (!Pocket::GetFunction<AppendToContainerPtr*>(appendToContainer, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 0F B6 C1 48 56"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire appendToContainer", "oh no!", 0);
 		return false;
+	}
 
 	if (!Pocket::GetFunction<RemoveFromContainerPtr*>(removeFromContainer, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 83 EC 0C 0F B6 C1 48 53"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire removeFromContainer", "oh no!", 0);
 		return false;
+	}
 
 	if (!Pocket::GetFunction<ReadVariablePtr*>(readVariable, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 F1 00 00 00 0F B6 80 ?? ?? ?? ?? FF 24 85 ?? ?? ?? ?? FF 75 10 FF 75 0C E8 ?? ?? ?? ?? 83 C4 08 5D C3"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire readVariable", "oh no!", 0);
 		return false;
+	}
 
-	if (!Pocket::GetFunction<CallProcPtr*>(callProc, rangeStart, miModInfo.SizeOfImage, "55 8B EC 83 EC 0C 53 8B 5D 10 8D 45 FF 56 8B 75 14 57 6A 01 50 FF 75 1C C6 45 FF 00 FF 75 18 6A 00 56 53 E8 ?? ?? ?? ?? 83 C4 1C 8B F8 84 DB 75 0D 68 C4 78 BA 0F E8 ?? ?? ?? ?? 83 C4 04 81 FF FF FF 00 00 0F 85 7E 01 00 00"))
+	if (!Pocket::GetFunction<CallProcPtr*>(callProc, rangeStart, miModInfo.SizeOfImage, "55 8B EC 83 EC 0C 53 8B 5D 10 8D 45 FF 56 8B 75 14 57 6A 01 50 FF 75 1C C6 45 FF 00 FF 75 18 6A 00 56 53"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire callProc", "oh no!", 0);
 		return false;
+	}
 	// One of these is right (maybe), not needed as of now.
 	//mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
 	//mob_list = Pocket::Sigscan::FindPattern(rangeStart, miModInfo.SizeOfImage, "A1 ?? ?? ?? ?? 8B 04 B0 85 C0 74 34 FF B0", 1);
@@ -101,16 +126,21 @@ bool BYOND::Variables::GetFunctionPointers() const
 
 BYOND::Object BYOND::Variables::ReadVariable(ObjectType type, int datumId, const std::string varName)
 {
-	readVariable(type, datumId, BYONDSTR(varName));
 	VariableType varType;
 	unsigned int varValue;
-	Object obj {};
-
+	int varNameId = BYONDSTR(varName);
+	ObjectType differentlyNamedType = type;
+	//readVariable(type, datumId, BYONDSTR(varName));
 	__asm {
+		push varNameId
+		push datumId
+		push differentlyNamedType
+		call readVariable
+		add esp, 12
 		mov varType, eax
 		mov varValue, edx
 	}
-
+	Object obj{};
 	obj.type = static_cast<VariableType>(varType);
 	if (obj.type == BYOND::VariableType::Number) {
 		obj.value = *reinterpret_cast<void**>(&varValue);
