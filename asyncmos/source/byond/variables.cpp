@@ -7,7 +7,7 @@
 #include "../pocket/utilities.h"
 #include "list.h"
 
-
+#pragma comment( lib, "psapi.lib" )
 
 BYOND::Variables vars;
 
@@ -29,11 +29,36 @@ bool BYOND::Variables::Initialize()
 	if (!GetFunctionPointers())
 		return false;
 
+	if (!HookGlobalTimer())
+		return false;
+
 	GenerateStringTable();
 	init_done = true;
 
 	return true;
 }
+
+void __stdcall GlobalTimerStartHook(int _this, int a1, int a2, int a3, int a4)
+{
+	return;
+}
+
+bool BYOND::Variables::HookGlobalTimer() //gonna need a function to unhook and clean up
+{
+	NTSTATUS result = LhInstallHook(
+		GetProcAddress(GetModuleHandle(TEXT("byondcore")), "?Start@GlobalTimer@@QAEXUtimeval@@EP6AXPAU1@@ZPAX@Z"),
+		GlobalTimerStartHook,
+		NULL,
+		&globalTimerHookInfo);
+
+	if (FAILED(result))
+	{
+		MessageBoxA(nullptr, "Failed to install GlobalTimer::Start hook!", "oh crap!", 0);
+		return false;
+	}
+	return true;
+}
+
 
 void BYOND::Variables::GenerateStringTable() const
 {
@@ -179,15 +204,17 @@ void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string var
 	setVariable(type, datumId, BYONDSTR(varName), varType, *reinterpret_cast<void**>(&new_value));
 }
 
-void BYOND::Variables::CallProc(Object obj, std::string procName, std::vector<Object> arguments)
+void BYOND::Variables::CallObjectProc(Object obj, std::string procName, std::vector<Object> arguments)
 {
 	std::replace(procName.begin(), procName.end(), '_', ' ');
+	ULONG ACLEntries[1] = { 0 };
+	LhSetInclusiveACL(ACLEntries, 1, &globalTimerHookInfo);
 	callProc(0, 0, ProcType::Proc, BYONDSTR(procName), static_cast<ObjectType>(obj.Type()), reinterpret_cast<int>(obj.value), arguments.data(), arguments.size(), 0, 0);
 }
 
-void BYOND::Variables::CallProc(Object obj, std::string procName)
+void BYOND::Variables::CallObjectProc(Object obj, std::string procName)
 {
-	CallProc(obj, procName, std::vector<Object>());
+	CallObjectProc(obj, procName, std::vector<Object>());
 }
 
 std::string BYOND::Variables::GetStringFromId(int id) const

@@ -11,6 +11,8 @@
 #include "byond/list.h"
 #include "byond/mob.h"
 
+#include "easyhook.h"
+
 /*
 void test_run()
 {
@@ -91,6 +93,8 @@ BYOND_EXPORT(process)
 	return nullptr;
 }
 
+
+
 void perform_tests()
 {
 	assert(vars.ReadGlobalVariable("global_variable_string").AsString() == "global variable of type string");
@@ -103,7 +107,7 @@ void perform_tests()
 	assert(mob->Type() == BYOND::VariableType::Mob);
 	assert(mob->value == 0);
 
-	vars.CallProc(*mob, "mob_test_proc");
+	vars.CallObjectProc(*mob, "mob_test_proc");
 
 	assert(mob->GetVariable("mob_variable_number").AsNumber() == static_cast<float>(5));
 	assert(mob->GetVariable("mob_variable_string").AsString() == "mob variable of type string");

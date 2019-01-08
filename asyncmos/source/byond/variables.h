@@ -4,6 +4,7 @@
 #include <vector>
 #include "byond.h"
 #include "object.h"
+#include <easyhook.h>
 
 namespace BYOND
 {
@@ -29,8 +30,8 @@ namespace BYOND
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, int new_value) const;
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, float new_value) const;
 
-		void CallProc(BYOND::Object, std::string procName);
-		void CallProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
+		void CallObjectProc(BYOND::Object, std::string procName);
+		void CallObjectProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
 
 		std::string GetStringFromId(int id) const;
 		List* GetListFromId(int id) const;
@@ -39,11 +40,13 @@ namespace BYOND
 	private:
 		void* mob_list = nullptr;
 		bool init_done = false;
+		HOOK_TRACE_INFO globalTimerHookInfo = { 0 };
 
 	private:
 		// Internal
 		void GenerateStringTable() const;
 		bool GetFunctionPointers() const;
+		bool HookGlobalTimer();
 
 	public:
 		typedef void(__cdecl SetVariablePtr)(BYOND::ObjectType type, int datumId, int varNameId, BYOND::VariableType varType, void* newValue);

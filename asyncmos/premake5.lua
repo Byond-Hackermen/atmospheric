@@ -61,3 +61,7 @@ workspace "asyncmos"
 			["Header Files/*"] = "source/**.h",
 			["Source Files/*"] = "source/**.cpp"
 		}
+		
+		includedirs { "easyhook/include" }
+        libdirs { "easyhook/lib" }
+        links { "easyhook32.lib" }
