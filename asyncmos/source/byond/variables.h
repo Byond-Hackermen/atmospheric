@@ -30,8 +30,8 @@ namespace BYOND
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, int new_value) const;
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, float new_value) const;
 
-		void CallObjectProc(BYOND::Object, std::string procName);
-		void CallObjectProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
+		BYOND::Object CallObjectProc(BYOND::Object, std::string procName);
+		BYOND::Object CallObjectProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
 
 		std::string GetStringFromId(int id) const;
 		List* GetListFromId(int id) const;

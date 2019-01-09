@@ -34,8 +34,9 @@
 	var/mob_variable_string = "mob variable of type string"
 	var/list/mob_variable_list = list("mob variable list element 1", "mob variable list element 2")
 
-/mob/mob_type_1/proc/mob_test_proc()
-	world << "Mob test successful!"
+/mob/mob_type_1/proc/mob_test_proc(arg)
+	world << "Mob test successful! Argument: [arg]"
+	return arg
 
 /mob/mob_type_2
 	name = "mob of type 2"

@@ -10,6 +10,9 @@ namespace BYOND
 	class Object
 	{
 	public:
+		Object();
+		Object(BYOND::VariableType type, int value);
+		Object(BYOND::VariableType type, float value);
 		BYOND::VariableType type;
 		void* value;
 

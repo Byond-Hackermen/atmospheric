@@ -204,17 +204,33 @@ void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string var
 	setVariable(type, datumId, BYONDSTR(varName), varType, *reinterpret_cast<void**>(&new_value));
 }
 
-void BYOND::Variables::CallObjectProc(Object obj, std::string procName, std::vector<Object> arguments)
+BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName, std::vector<Object> arguments)
 {
 	std::replace(procName.begin(), procName.end(), '_', ' ');
 	ULONG ACLEntries[1] = { 0 };
 	LhSetInclusiveACL(ACLEntries, 1, &globalTimerHookInfo);
+	BYOND::VariableType retType;
+	unsigned int retValue;
 	callProc(0, 0, ProcType::Proc, BYONDSTR(procName), static_cast<ObjectType>(obj.Type()), reinterpret_cast<int>(obj.value), arguments.data(), arguments.size(), 0, 0);
+	__asm {
+		mov retType, eax
+		mov retValue, edx
+		}
+	BYOND::Object retObj;
+	retObj.type = retType;
+	if (retObj.type == BYOND::VariableType::Number) {
+		retObj.value = *reinterpret_cast<void**>(&retValue);
+	}
+	else
+	{
+		retObj.value = reinterpret_cast<void*>(retValue);
+	}
+	return retObj;
 }
 
-void BYOND::Variables::CallObjectProc(Object obj, std::string procName)
+BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName)
 {
-	CallObjectProc(obj, procName, std::vector<Object>());
+	return CallObjectProc(obj, procName, std::vector<Object>());
 }
 
 std::string BYOND::Variables::GetStringFromId(int id) const

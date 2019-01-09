@@ -3,6 +3,23 @@
 #include "variables.h"
 #include "../pocket/utilities.h"
 
+BYOND::Object::Object()
+{
+	this->type = BYOND::VariableType::Null;
+	this->value = 0;
+}
+
+BYOND::Object::Object(BYOND::VariableType type, int value)
+{
+	this->type = type;
+	this->value = reinterpret_cast<void*>(value);
+}
+
+BYOND::Object::Object(BYOND::VariableType type, float value)
+{
+	this->type = type;
+	this->value = *reinterpret_cast<void**>(&value);
+}
 
 std::string BYOND::Object::AsString() const
 {

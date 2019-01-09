@@ -1,6 +1,7 @@
 #pragma once
 
 #include "object.h"
+#include <vector>
 
 namespace BYOND
 {
@@ -11,5 +12,8 @@ namespace BYOND
 		void SetVariable(std::string varName, VariableType varType, float new_value) const;
 
 		BYOND::Object GetVariable(std::string varName) const;
+
+		BYOND::Object CallProc(std::string procName, std::vector<Object> args);
+		BYOND::Object CallProc(std::string procName);
 	};
 }

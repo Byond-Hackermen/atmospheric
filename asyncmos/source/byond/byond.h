@@ -7,6 +7,7 @@
 namespace BYOND
 {
 	enum class ObjectType {
+		Null		= 0x00,
 		Turf		= 0x01,
 		Obj			= 0x02,
 		Mob			= 0x03,
@@ -21,6 +22,7 @@ namespace BYOND
 	};
 
 	enum class VariableType {
+		Null		= 0x00,
 		Mob			= 0x03,
 		String		= 0x06,
 		List		= 0x0F,
