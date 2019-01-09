@@ -71,17 +71,17 @@ void perform_tests()
 	assert(list->At(0)->AsString() == "global variable list element 1");
 	assert(list->At(1)->AsString() == "global variable list element 2");
 
-	BYOND::Mob* mob = static_cast<BYOND::Mob*>(&vars.ReadGlobalVariable("global_variable_mob"));
-	assert(mob->Type() == BYOND::VariableType::Mob);
-	assert(mob->value == 0);
+	BYOND::Mob mob = vars.ReadGlobalVariable("global_variable_mob").As(BYOND::Mob);
+	assert(mob.Type() == BYOND::VariableType::Mob);
+	assert(mob.value == 0);
 
 	BYOND::Object argument(BYOND::VariableType::Number, static_cast<float>(5));
 
-	assert(mob->CallProc("mob_test_proc", { argument }).AsNumber() == argument.AsNumber());
+	assert(mob.CallProc("mob_test_proc", { argument }).AsNumber() == argument.AsNumber());
 
-	assert(mob->GetVariable("mob_variable_number").AsNumber() == static_cast<float>(5));
-	assert(mob->GetVariable("mob_variable_string").AsString() == "mob variable of type string");
-	BYOND::List* mob_list_var = mob->GetVariable("mob_variable_list").AsList();
+	assert(mob.GetVariable("mob_variable_number").AsNumber() == static_cast<float>(5));
+	assert(mob.GetVariable("mob_variable_string").AsString() == "mob variable of type string");
+	BYOND::List* mob_list_var = mob.GetVariable("mob_variable_list").AsList();
 	assert(mob_list_var->At(0)->AsString() == "mob variable list element 1");
 	assert(mob_list_var->At(1)->AsString() == "mob variable list element 2");
 }
