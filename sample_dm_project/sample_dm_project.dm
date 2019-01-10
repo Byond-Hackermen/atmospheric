@@ -72,6 +72,7 @@ var/datum/datum_type_1/global_variable_datum
 var/global_variable_number = 5
 var/global_variable_string = "global variable of type string"
 var/list/global_variable_list = list("global variable list element 1", "global variable list element 2")
+var/list/global_associative_list = list("associative list key 1" = "associative list value 1", "associative list key 2" = "associative list value 2")
 var/unimportant_var = "nothing"
 
 /world/New()
@@ -94,5 +95,5 @@ var/unimportant_var = "nothing"
 	global_variable_mob.mob_test_proc(15)
 	global_variable_datum.datum_test_proc(15)
 
-/client/verb/access_datum_var()
-	world.log << global_variable_datum.name
+/client/verb/access_ssoc_list()
+	world.log << global_associative_list["associative list key 1"]

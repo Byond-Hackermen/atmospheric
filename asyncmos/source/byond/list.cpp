@@ -38,3 +38,21 @@ void BYOND::List::Remove(VariableType type, float value) const
 {
 	BYOND::Variables::removeFromContainer(VariableType::List, ID, type, *reinterpret_cast<void**>(&value));
 }
+
+BYOND::Object* BYOND::List::operator[](int index)
+{
+	return At(index);
+}
+
+BYOND::Object* BYOND::List::operator[](BYOND::Object why)
+{
+	for (int i = 0; i < Length(); i += 2) //assuming only the 0th, 2nd, 4th... values in the list may be keys
+	{
+		Object* potential_key = At(i);
+		if (potential_key->Type() == why.Type() && potential_key->value == why.value)
+		{
+			return At(i + 1);
+		}
+	}
+	return nullptr;
+}

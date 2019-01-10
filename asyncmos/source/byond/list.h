@@ -39,5 +39,7 @@ namespace BYOND
 		void Append(VariableType type, float value) const;
 		void Remove(VariableType type, int value) const;
 		void Remove(VariableType type, float value) const;
+		Object* operator[](int index);
+		Object* operator[](BYOND::Object why);
 	};
 }

@@ -73,9 +73,12 @@ void test_object(std::string objType, BYOND::VariableType expectedVariableType)
 
 	assert(object.GetVariable(objType + "_variable_number").AsNumber() == static_cast<float>(5));
 	assert(object.GetVariable(objType + "_variable_string").AsString() == objType + " variable of type string");
+
 	BYOND::List* object_list_var = object.GetVariable(objType + "_variable_list").AsList();
-	assert(object_list_var->At(0)->AsString() == objType + " variable list element 1");
-	assert(object_list_var->At(1)->AsString() == objType + " variable list element 2");
+	BYOND::Object* obj = object_list_var->operator[](0);
+	BYOND::Object* obj2 = object_list_var[0];
+	//assert(object_list_var[0].AsString() == objType + " variable list element 1");
+	//assert(object_list_var->At(0)->AsString() == objType + " variable list element 2");
 
 }
 
