@@ -14,13 +14,14 @@ namespace BYOND
 	public:
 		Object();
 		Object(BYOND::VariableType type, int value);
-		Object(BYOND::VariableType type, float value);
+		Object(float value);
+		Object(std::string value);
 		BYOND::VariableType type;
 		void* value;
 
 		std::string AsString() const;
 		float AsNumber() const;
-		BYOND::List* AsList() const;
+		BYOND::List AsList() const;
 
 		#pragma push_macro("As")
 		#undef As

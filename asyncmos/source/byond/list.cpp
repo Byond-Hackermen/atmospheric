@@ -1,5 +1,4 @@
 #include "list.h"
-
 #include "variables.h"
 
 
@@ -46,13 +45,5 @@ BYOND::Object* BYOND::List::operator[](int index)
 
 BYOND::Object* BYOND::List::operator[](BYOND::Object why)
 {
-	for (int i = 0; i < Length(); i += 2) //assuming only the 0th, 2nd, 4th... values in the list may be keys
-	{
-		Object* potential_key = At(i);
-		if (potential_key->Type() == why.Type() && potential_key->value == why.value)
-		{
-			return At(i + 1);
-		}
-	}
-	return nullptr;
+	return new BYOND::Object(vars.GetContainerItem(BYOND::VariableType::List, ID, why));
 }

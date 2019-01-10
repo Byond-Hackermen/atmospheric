@@ -34,8 +34,9 @@ namespace BYOND
 		BYOND::Object CallObjectProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
 
 		std::string GetStringFromId(int id) const;
-		List* GetListFromId(int id) const;
+		List GetListFromId(int id) const;
 		char* GetCStringFromId(int id) const;
+		BYOND::Object GetContainerItem(BYOND::VariableType containerType, int containerId, BYOND::Object key);
 
 	private:
 		void* mob_list = nullptr;
@@ -72,6 +73,9 @@ namespace BYOND
 
 		typedef void*(__cdecl CallProcPtr)(int unk1, int unk2, ProcType procType, int procName, ObjectType datumType, int datumId, Object* argList, int argListLen, int unk4, int unk5);
 		static CallProcPtr* callProc;
+
+		typedef void*(__cdecl GetContainerItemPtr)(VariableType containerType, int containerId, VariableType keyType, int keyValue);
+		static GetContainerItemPtr* getContainerItem;
 	};
 }
 extern BYOND::Variables vars;

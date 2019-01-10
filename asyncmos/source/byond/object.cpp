@@ -1,5 +1,5 @@
 #include "object.h"
-
+#include "list.h"
 #include "variables.h"
 #include "../pocket/utilities.h"
 
@@ -15,10 +15,16 @@ BYOND::Object::Object(BYOND::VariableType type, int value)
 	this->value = reinterpret_cast<void*>(value);
 }
 
-BYOND::Object::Object(BYOND::VariableType type, float value)
+BYOND::Object::Object(float value)
 {
-	this->type = type;
+	this->type = BYOND::VariableType::Number;
 	this->value = *reinterpret_cast<void**>(&value);
+}
+
+BYOND::Object::Object(std::string value)
+{
+	this->type = BYOND::VariableType::String;
+	this->value = reinterpret_cast<void*>(BYONDSTR(value));
 }
 
 std::string BYOND::Object::AsString() const
@@ -31,7 +37,7 @@ float BYOND::Object::AsNumber() const
 	return Pocket::DwordToFloat(reinterpret_cast<DWORD>(value));
 }
 
-BYOND::List* BYOND::Object::AsList() const
+BYOND::List BYOND::Object::AsList() const
 {
 	return vars.GetListFromId(reinterpret_cast<int>(value));
 }

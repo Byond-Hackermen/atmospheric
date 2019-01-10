@@ -35,11 +35,11 @@ BYOND_EXPORT(init)
 
 void process_thread()
 {
-	BYOND::List* lst = vars.ReadGlobalVariable("mob_list").AsList();
+	BYOND::List lst = vars.ReadGlobalVariable("mob_list").AsList();
 	//msg(Pocket::IntegerToStrHex((unsigned int)lst).c_str(), "address of mob list");
-	for (int i = 0; i < lst->Length(); i++)
+	for (int i = 0; i < lst.Length(); i++)
 	{
-		BYOND::Mob* mob = static_cast<BYOND::Mob*>(lst->At(i));
+		BYOND::Mob* mob = static_cast<BYOND::Mob*>(lst.At(i));
 		if (!Pocket::ErrorHandling::IsValidPtr(mob))
 			continue;
 
@@ -68,17 +68,15 @@ void test_object(std::string objType, BYOND::VariableType expectedVariableType)
 	assert(object.Type() == expectedVariableType);
 	assert(object.value == 0);
 
-	BYOND::Object argument(BYOND::VariableType::Number, static_cast<float>(5));
+	BYOND::Object argument(static_cast<float>(5));
 	assert(object.CallProc(objType + "_test_proc", { argument }).AsNumber() == argument.AsNumber());
 
 	assert(object.GetVariable(objType + "_variable_number").AsNumber() == static_cast<float>(5));
 	assert(object.GetVariable(objType + "_variable_string").AsString() == objType + " variable of type string");
 
-	BYOND::List* object_list_var = object.GetVariable(objType + "_variable_list").AsList();
-	BYOND::Object* obj = object_list_var->operator[](0);
-	BYOND::Object* obj2 = object_list_var[0];
-	//assert(object_list_var[0].AsString() == objType + " variable list element 1");
-	//assert(object_list_var->At(0)->AsString() == objType + " variable list element 2");
+	BYOND::List object_list_var = object.GetVariable(objType + "_variable_list").AsList();
+	assert(object_list_var[0]->AsString() == objType + " variable list element 1");
+	assert(object_list_var[1]->AsString() == objType + " variable list element 2");
 
 }
 
@@ -86,9 +84,14 @@ void perform_tests()
 {
 	assert(vars.ReadGlobalVariable("global_variable_string").AsString() == "global variable of type string");
 	assert(vars.ReadGlobalVariable("global_variable_number").AsNumber() == static_cast<float>(5));
-	BYOND::List* list = vars.ReadGlobalVariable("global_variable_list").AsList();
-	assert(list->At(0)->AsString() == "global variable list element 1");
-	assert(list->At(1)->AsString() == "global variable list element 2");
+	BYOND::List list = vars.ReadGlobalVariable("global_variable_list").AsList();
+	assert(list[0]->AsString() == "global variable list element 1");
+	assert(list[1]->AsString() == "global variable list element 2");
+	BYOND::List assocList = vars.ReadGlobalVariable("global_associative_list").AsList();
+	BYOND::Object index("associative list key 1");
+	assert(assocList[index]->AsString() == "associative list value 1");
+	BYOND::Object index2("associative list key 2");
+	assert(assocList[index2]->AsString() == "associative list value 2");
 
 	test_object<BYOND::Area>("area", BYOND::VariableType::Area);
 	test_object<BYOND::Obj>("obj", BYOND::VariableType::Obj);

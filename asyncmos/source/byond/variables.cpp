@@ -21,7 +21,7 @@ BYOND::Variables::AppendToContainerPtr*			BYOND::Variables::appendToContainer = 
 BYOND::Variables::RemoveFromContainerPtr*		BYOND::Variables::removeFromContainer = nullptr;
 BYOND::Variables::ReadVariablePtr*				BYOND::Variables::readVariable = nullptr;
 BYOND::Variables::CallProcPtr*					BYOND::Variables::callProc = nullptr;
-
+BYOND::Variables::GetContainerItemPtr*			BYOND::Variables::getContainerItem = nullptr;
 
 
 bool BYOND::Variables::Initialize()
@@ -141,6 +141,13 @@ bool BYOND::Variables::GetFunctionPointers() const
 		MessageBoxA(nullptr, "Failed to acquire callProc", "oh no!", 0);
 		return false;
 	}
+
+	if (!Pocket::GetFunction<GetContainerItemPtr*>(getContainerItem, rangeStart, miModInfo.SizeOfImage, "55 8B EC 51 8B 4D 08 C6 45 FF 00 80 F9 05 76 ?? 80 F9 21 74 ?? 80 F9 0D 74 ?? 80 F9 0E 75 ?? EB ?? 84 C9 74 ?? 6A 00 8D 45 FF 50 FF 75 0C 51 6A 00 6A 7B"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire getContainerItem", "oh no!", 0);
+		return false;
+	}
+
 	// One of these is right (maybe), not needed as of now.
 	//mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
 	//mob_list = Pocket::Sigscan::FindPattern(rangeStart, miModInfo.SizeOfImage, "A1 ?? ?? ?? ?? 8B 04 B0 85 C0 74 34 FF B0", 1);
@@ -238,13 +245,41 @@ std::string BYOND::Variables::GetStringFromId(int id) const
 	return std::string(GetCStringFromId(id));
 }
 
-BYOND::List* BYOND::Variables::GetListFromId(int id) const
+BYOND::List BYOND::Variables::GetListFromId(int id) const
 {
-	BYOND::List* newlist = new BYOND::List(id);
-	return newlist;
+	return BYOND::List(id);
 }
 
 char* BYOND::Variables::GetCStringFromId(int id) const
 {
 	return *getStringPointerFromId(id);
+}
+
+BYOND::Object BYOND::Variables::GetContainerItem(BYOND::VariableType containerType, int containerId, BYOND::Object key)
+{
+	BYOND::VariableType retType;
+	unsigned int retValue;
+	BYOND::VariableType keyType = key.Type();
+	int keyValue = reinterpret_cast<int>(key.value);
+	getContainerItem(containerType, containerId, key.Type(), reinterpret_cast<int>(key.value));
+	__asm {
+		push keyValue
+		push keyType
+		push containerId
+		push containerType
+		call getContainerItem
+		add esp, 16
+		mov retType, eax
+		mov retValue, edx
+	}
+	BYOND::Object retObj;
+	retObj.type = retType;
+	if (retObj.type == BYOND::VariableType::Number) {
+		retObj.value = *reinterpret_cast<void**>(&retValue);
+	}
+	else
+	{
+		retObj.value = reinterpret_cast<void*>(retValue);
+	}
+	return retObj;
 }
