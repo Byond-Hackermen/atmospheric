@@ -9,7 +9,7 @@
 #include "byond/interface.h"
 #include "byond/variables.h"
 #include "byond/list.h"
-#include "byond/mob.h"
+#include "byond/object_types.h"
 
 #define msg(x, y) MessageBoxA(nullptr, x, y, MB_OK)
 

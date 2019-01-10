@@ -1,11 +1,11 @@
 #pragma once
-
 #include "object.h"
+
 #include <vector>
 
 namespace BYOND
 {
-	class Mob : public BYOND::Object
+	class DatumObject : public BYOND::Object
 	{
 	public:
 		void SetVariable(std::string varName, VariableType varType, int new_value) const;
@@ -16,4 +16,9 @@ namespace BYOND
 		BYOND::Object CallProc(std::string procName, std::vector<Object> args);
 		BYOND::Object CallProc(std::string procName);
 	};
+
+	class Area : public DatumObject {};
+	class Turf : public DatumObject {};
+	class Obj : public DatumObject {};
+	class Mob : public DatumObject {};
 }
