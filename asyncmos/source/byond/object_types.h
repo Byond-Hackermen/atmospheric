@@ -21,4 +21,5 @@ namespace BYOND
 	class Turf : public DatumObject {};
 	class Obj : public DatumObject {};
 	class Mob : public DatumObject {};
+	class Datum : public DatumObject {};
 }

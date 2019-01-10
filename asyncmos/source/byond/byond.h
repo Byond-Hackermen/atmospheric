@@ -23,9 +23,13 @@ namespace BYOND
 
 	enum class VariableType {
 		Null		= 0x00,
+		Turf		= 0x01,
+		Obj			= 0x02,
 		Mob			= 0x03,
+		Area		= 0x04,
 		String		= 0x06,
 		List		= 0x0F,
+		Datum		= 0x21,
 		Number		= 0x2A
 	};
 
