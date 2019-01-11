@@ -38,12 +38,12 @@ void BYOND::List::Remove(VariableType type, float value) const
 	BYOND::Variables::removeFromContainer(VariableType::List, ID, type, *reinterpret_cast<void**>(&value));
 }
 
-BYOND::Object* BYOND::List::operator[](int index)
+BYOND::Object* BYOND::List::operator[](int index) const
 {
 	return At(index);
 }
 
-BYOND::Object* BYOND::List::operator[](BYOND::Object why)
+BYOND::Object* BYOND::List::operator[](BYOND::Object why) const
 {
 	return new BYOND::Object(vars.GetContainerItem(BYOND::VariableType::List, ID, why));
 }

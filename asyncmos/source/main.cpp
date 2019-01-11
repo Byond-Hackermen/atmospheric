@@ -39,14 +39,12 @@ void process_thread()
 	//msg(Pocket::IntegerToStrHex((unsigned int)lst).c_str(), "address of mob list");
 	for (int i = 0; i < lst.Length(); i++)
 	{
-		BYOND::Mob* mob = static_cast<BYOND::Mob*>(lst.At(i));
-		if (!Pocket::ErrorHandling::IsValidPtr(mob))
-			continue;
+		BYOND::Mob mob = lst.At(i)->As(BYOND::Mob);
 
 		//msg(Pocket::IntegerToStrHex((int)mob->value).c_str(), "mob value");
-		msg(mob->GetVariable("color").AsString().c_str(), "mob color");
-		mob->SetVariable("color", BYOND::VariableType::String, BYONDSTR("#00FF00"));
-		msg(mob->GetVariable("color").AsString().c_str(), "mob color after update");
+		msg(mob.GetVariable("color").AsString().c_str(), "mob color");
+		mob.SetVariable("color", BYOND::VariableType::String, BYONDSTR("#00FF00"));
+		msg(mob.GetVariable("color").AsString().c_str(), "mob color after update");
 	}
 }
 
@@ -92,6 +90,12 @@ void perform_tests()
 	assert(assocList[index]->AsString() == "associative list value 1");
 	BYOND::Object index2("associative list key 2");
 	assert(assocList[index2]->AsString() == "associative list value 2");
+
+	unsigned int str_index = vars.AddToStringTable("Adding a new string to the string table!");
+	*list[0] = BYOND::Object(BYOND::VariableType::String, str_index);
+	assert(list[0]->AsString() == "Adding a new string to the string table!");
+
+
 
 	test_object<BYOND::Area>("area", BYOND::VariableType::Area);
 	test_object<BYOND::Obj>("obj", BYOND::VariableType::Obj);

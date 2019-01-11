@@ -96,4 +96,8 @@ var/unimportant_var = "nothing"
 	global_variable_datum.datum_test_proc(15)
 
 /client/verb/access_ssoc_list()
-	world.log << global_associative_list["associative list key 1"]
+	world << global_associative_list["associative list key 1"]
+
+/client/verb/print_global_list()
+	for(var/x in global_variable_list)
+		world << "[x]"

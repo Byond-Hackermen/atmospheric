@@ -88,7 +88,7 @@ void BYOND::Variables::GenerateStringTable() const
 }
 
 
-bool BYOND::Variables::GetFunctionPointers() const
+bool BYOND::Variables::GetFunctionPointers()
 {
 	const auto rangeStart = reinterpret_cast<DWORD>(GetModuleHandleA("byondcore.dll"));
 	MODULEINFO miModInfo; GetModuleInformation(GetCurrentProcess(), reinterpret_cast<HMODULE>(rangeStart), &miModInfo, sizeof(MODULEINFO));
@@ -147,6 +147,9 @@ bool BYOND::Variables::GetFunctionPointers() const
 		MessageBoxA(nullptr, "Failed to acquire getContainerItem", "oh no!", 0);
 		return false;
 	}
+
+	dynamic_string_table = **reinterpret_cast<char*****>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 15);
+	dynamic_string_table_length = *reinterpret_cast<unsigned int**>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 8);
 
 	// One of these is right (maybe), not needed as of now.
 	//mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
@@ -282,4 +285,18 @@ BYOND::Object BYOND::Variables::GetContainerItem(BYOND::VariableType containerTy
 		retObj.value = reinterpret_cast<void*>(retValue);
 	}
 	return retObj;
+}
+
+unsigned int BYOND::Variables::AddToStringTable(std::string str)
+{
+	unsigned int index = 0;
+	unsigned int* table_base = reinterpret_cast<unsigned int*>(dynamic_string_table);
+	while(*(table_base + index) != 0) index++;
+	char* cstr = const_cast<char*>(str.c_str());
+	char* heap_allocated = new char[str.size()+1];
+	std::memcpy(heap_allocated, cstr, str.size()+1);
+	char** heap_pointer = new char*;
+	*heap_pointer = heap_allocated;
+	*(char***)(table_base + index) = heap_pointer;
+	return index;
 }

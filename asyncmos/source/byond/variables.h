@@ -38,15 +38,19 @@ namespace BYOND
 		char* GetCStringFromId(int id) const;
 		BYOND::Object GetContainerItem(BYOND::VariableType containerType, int containerId, BYOND::Object key);
 
+		unsigned int AddToStringTable(std::string str);
+
 	private:
 		void* mob_list = nullptr;
+		char*** dynamic_string_table = nullptr;
+		unsigned int* dynamic_string_table_length = 0;
 		bool init_done = false;
 		HOOK_TRACE_INFO globalTimerHookInfo = { 0 };
 
 	private:
 		// Internal
 		void GenerateStringTable() const;
-		bool GetFunctionPointers() const;
+		bool GetFunctionPointers();
 		bool HookGlobalTimer();
 
 	public:
