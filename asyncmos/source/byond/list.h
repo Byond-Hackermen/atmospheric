@@ -40,6 +40,6 @@ namespace BYOND
 		void Remove(VariableType type, int value) const;
 		void Remove(VariableType type, float value) const;
 		Object* operator[](int index) const;
-		Object* operator[](BYOND::Object why) const;
+		std::unique_ptr<BYOND::Object> operator[](BYOND::Object why) const;
 	};
 }

@@ -1,6 +1,7 @@
 #include "list.h"
 #include "variables.h"
 
+#include <memory>
 
 BYOND::List::List(int id) {
 	ByondList* list = BYOND::Variables::getListPointer(id);
@@ -43,7 +44,7 @@ BYOND::Object* BYOND::List::operator[](int index) const
 	return At(index);
 }
 
-BYOND::Object* BYOND::List::operator[](BYOND::Object why) const
+std::unique_ptr<BYOND::Object> BYOND::List::operator[](BYOND::Object why) const
 {
-	return new BYOND::Object(vars.GetContainerItem(BYOND::VariableType::List, ID, why));
+	return std::make_unique<BYOND::Object>(vars.GetContainerItem(BYOND::VariableType::List, ID, why));
 }
