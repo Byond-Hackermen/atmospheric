@@ -15,12 +15,9 @@ namespace BYOND
 	class Variables
 	{
 	public:
-		static std::map<std::string, int> stringTable;
 
 		bool Initialize();
 		bool Ready() const { return init_done; }
-		
-
 
 	public:
 		BYOND::Object ReadVariable(BYOND::ObjectType type, int datumId, std::string varName);
@@ -45,9 +42,6 @@ namespace BYOND
 		static void BYOND::Variables::DecreaseStringRefcount(unsigned int id);
 
 	private:
-		void* mob_list = nullptr;
-		//char*** dynamic_string_table = nullptr;
-		//unsigned int* dynamic_string_table_length = 0;
 		bool init_done = false;
 		HOOK_TRACE_INFO globalTimerHookInfo = { 0 };
 

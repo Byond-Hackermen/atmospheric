@@ -12,8 +12,6 @@
 
 BYOND::Variables vars;
 
-std::map<std::string, int> BYOND::Variables::stringTable;
-
 BYOND::Variables::SetVariablePtr*				BYOND::Variables::setVariable = nullptr;
 BYOND::Variables::GetVariablePtr*				BYOND::Variables::getVariable = nullptr;
 BYOND::Variables::GetStringPointerFromIdPtr*	BYOND::Variables::getStringPointerFromId = nullptr;
@@ -124,9 +122,6 @@ bool BYOND::Variables::GetFunctionPointers()
 		MessageBoxA(nullptr, "Failed to acquire getStringTableIndex", "oh no!", 0);
 		return false;
 	}
-
-	//dynamic_string_table = **reinterpret_cast<char*****>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 15);
-	//dynamic_string_table_length = *reinterpret_cast<unsigned int**>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 8);
 
 	// One of these is right (maybe), not needed as of now.
 	//mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
