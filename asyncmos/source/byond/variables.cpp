@@ -33,7 +33,6 @@ bool BYOND::Variables::Initialize()
 	if (!HookGlobalTimer())
 		return false;
 
-	GenerateStringTable();
 	init_done = true;
 
 	return true;
@@ -59,35 +58,6 @@ bool BYOND::Variables::HookGlobalTimer() //gonna need a function to unhook and c
 	}
 	return true;
 }
-
-
-void BYOND::Variables::GenerateStringTable() const
-{
-	char* current_char = GetCStringFromId(1);
-	int current_string_id = 1;
-	std::string current_name;
-
-	while (true)
-	{
-		if (*current_char != 0x00)
-		{
-			current_name += *current_char;
-		}
-		else
-		{
-			stringTable[current_name] = current_string_id;
-			if (*(current_char + 1) == 0x00) {
-				break;
-			}
-
-			current_name = "";
-			current_string_id++;
-		}
-
-		current_char++;
-	}
-}
-
 
 bool BYOND::Variables::GetFunctionPointers()
 {

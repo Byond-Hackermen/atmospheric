@@ -53,7 +53,6 @@ namespace BYOND
 
 	private:
 		// Internal
-		void GenerateStringTable() const;
 		bool GetFunctionPointers();
 		bool HookGlobalTimer();
 
