@@ -101,3 +101,6 @@ var/unimportant_var = "nothing"
 /client/verb/print_global_list()
 	for(var/x in global_variable_list)
 		world << "[x]"
+
+/client/verb/generate_string()
+	world << input("new string") as text

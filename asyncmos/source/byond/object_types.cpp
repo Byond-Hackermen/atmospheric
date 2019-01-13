@@ -2,7 +2,7 @@
 #include "variables.h"
 
 
-void BYOND::DatumObject::SetVariable(std::string varName, VariableType varType, int new_value) const
+void BYOND::DatumObject::SetVariable(std::string varName, VariableType varType, unsigned int new_value) const
 {
 	vars.SetVariable(static_cast<ObjectType>(type), reinterpret_cast<int>(value), varName, varType, new_value);
 }

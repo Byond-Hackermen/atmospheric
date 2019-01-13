@@ -2,7 +2,7 @@
 
 #include <string>
 
-#define BYONDSTR(x) BYOND::Variables::stringTable[x]
+#define BYONDSTR(x) BYOND::Variables::GetByondString(x)
 
 namespace BYOND
 {

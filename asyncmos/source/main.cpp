@@ -82,6 +82,12 @@ void perform_tests()
 {
 	assert(vars.ReadGlobalVariable("global_variable_string").AsString() == "global variable of type string");
 	assert(vars.ReadGlobalVariable("global_variable_number").AsNumber() == static_cast<float>(5));
+
+	test_object<BYOND::Area>("area", BYOND::VariableType::Area);
+	test_object<BYOND::Obj>("obj", BYOND::VariableType::Obj);
+	test_object<BYOND::Mob>("mob", BYOND::VariableType::Mob);
+	test_object<BYOND::Datum>("datum", BYOND::VariableType::Datum);
+
 	BYOND::List list = vars.ReadGlobalVariable("global_variable_list").AsList();
 	assert(list[0]->AsString() == "global variable list element 1");
 	assert(list[1]->AsString() == "global variable list element 2");
@@ -91,16 +97,8 @@ void perform_tests()
 	BYOND::Object index2("associative list key 2");
 	assert(assocList[index2]->AsString() == "associative list value 2");
 
-	unsigned int str_index = vars.AddToStringTable("Adding a new string to the string table!");
-	*list[0] = BYOND::Object(BYOND::VariableType::String, str_index);
-	assert(list[0]->AsString() == "Adding a new string to the string table!");
-
-
-
-	test_object<BYOND::Area>("area", BYOND::VariableType::Area);
-	test_object<BYOND::Obj>("obj", BYOND::VariableType::Obj);
-	test_object<BYOND::Mob>("mob", BYOND::VariableType::Mob);
-	test_object<BYOND::Datum>("datum", BYOND::VariableType::Datum);
+	*list[0] = BYOND::Object(BYOND::VariableType::String, BYONDSTR("Adding new string to the string table!"));
+	assert(list[0]->AsString() == "Adding new string to the string table!");
 }
 
 BYOND_EXPORT(test)

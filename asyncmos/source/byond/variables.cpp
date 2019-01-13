@@ -6,6 +6,7 @@
 
 #include "../pocket/utilities.h"
 #include "list.h"
+#include "bstring.h"
 
 #pragma comment( lib, "psapi.lib" )
 
@@ -22,7 +23,7 @@ BYOND::Variables::RemoveFromContainerPtr*		BYOND::Variables::removeFromContainer
 BYOND::Variables::ReadVariablePtr*				BYOND::Variables::readVariable = nullptr;
 BYOND::Variables::CallProcPtr*					BYOND::Variables::callProc = nullptr;
 BYOND::Variables::GetContainerItemPtr*			BYOND::Variables::getContainerItem = nullptr;
-
+BYOND::Variables::GetStringTableIndexPtr*		BYOND::Variables::getStringTableIndex = nullptr;
 
 bool BYOND::Variables::Initialize()
 {
@@ -148,8 +149,14 @@ bool BYOND::Variables::GetFunctionPointers()
 		return false;
 	}
 
-	dynamic_string_table = **reinterpret_cast<char*****>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 15);
-	dynamic_string_table_length = *reinterpret_cast<unsigned int**>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 8);
+	if (!Pocket::GetFunction<GetStringTableIndexPtr*>(getStringTableIndex, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 45 08 83 EC 18 53 8B 1D ?? ?? ?? ?? 56 57 85 C0 75 ?? 68 ?? ?? ?? ?? FF D3 83 C4 04 C6 45 10 00 80 7D 0C 00 89 45 E8 74 ?? 8D 45 10 50 8D 45 E8 50"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire getStringTableIndex", "oh no!", 0);
+		return false;
+	}
+
+	//dynamic_string_table = **reinterpret_cast<char*****>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 15);
+	//dynamic_string_table_length = *reinterpret_cast<unsigned int**>(reinterpret_cast<unsigned char*>(getStringPointerFromId) + 8);
 
 	// One of these is right (maybe), not needed as of now.
 	//mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
@@ -204,7 +211,7 @@ BYOND::Object BYOND::Variables::ReadGlobalVariable(std::string name)
 }
 
 
-void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, int new_value) const
+void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string varName, VariableType varType, unsigned int new_value) const
 {
 	setVariable(type, datumId, BYONDSTR(varName), varType, reinterpret_cast<void*>(new_value));
 }
@@ -243,22 +250,32 @@ BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName)
 	return CallObjectProc(obj, procName, std::vector<Object>());
 }
 
-std::string BYOND::Variables::GetStringFromId(int id) const
+std::string BYOND::Variables::GetStringFromId(unsigned int id) const
 {
 	return std::string(GetCStringFromId(id));
 }
 
-BYOND::List BYOND::Variables::GetListFromId(int id) const
+BYOND::List BYOND::Variables::GetListFromId(unsigned int id) const
 {
 	return BYOND::List(id);
 }
 
-char* BYOND::Variables::GetCStringFromId(int id) const
+char* BYOND::Variables::GetCStringFromId(unsigned int id) const
 {
-	return *getStringPointerFromId(id);
+	return getStringPointerFromId(id)->stringData;
 }
 
-BYOND::Object BYOND::Variables::GetContainerItem(BYOND::VariableType containerType, int containerId, BYOND::Object key)
+void BYOND::Variables::IncreaseStringRefcount(unsigned int id)
+{
+	getStringPointerFromId(id)->refcount++;
+}
+
+void BYOND::Variables::DecreaseStringRefcount(unsigned int id)
+{
+	getStringPointerFromId(id)->refcount--;
+}
+
+BYOND::Object BYOND::Variables::GetContainerItem(BYOND::VariableType containerType, unsigned int containerId, BYOND::Object key)
 {
 	BYOND::VariableType retType;
 	unsigned int retValue;
@@ -287,16 +304,9 @@ BYOND::Object BYOND::Variables::GetContainerItem(BYOND::VariableType containerTy
 	return retObj;
 }
 
-unsigned int BYOND::Variables::AddToStringTable(std::string str)
+unsigned int BYOND::Variables::GetByondString(std::string str)
 {
-	unsigned int index = 0;
-	unsigned int* table_base = reinterpret_cast<unsigned int*>(dynamic_string_table);
-	while(*(table_base + index) != 0) index++;
-	char* cstr = const_cast<char*>(str.c_str());
-	char* heap_allocated = new char[str.size()+1];
-	std::memcpy(heap_allocated, cstr, str.size()+1);
-	char** heap_pointer = new char*;
-	*heap_pointer = heap_allocated;
-	*(char***)(table_base + index) = heap_pointer;
+	unsigned int index = getStringTableIndex(str.c_str(), 0, 1);
+	IncreaseStringRefcount(index);
 	return index;
 }

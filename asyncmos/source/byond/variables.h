@@ -4,6 +4,7 @@
 #include <vector>
 #include "byond.h"
 #include "object.h"
+#include "bstring.h"
 #include <easyhook.h>
 
 namespace BYOND
@@ -27,23 +28,26 @@ namespace BYOND
 		BYOND::Object ReadWorldVariable(std::string name);
 		BYOND::Object ReadGlobalVariable(std::string name);
 
-		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, int new_value) const;
+		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, unsigned int new_value) const;
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, float new_value) const;
 
 		BYOND::Object CallObjectProc(BYOND::Object, std::string procName);
 		BYOND::Object CallObjectProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
 
-		std::string GetStringFromId(int id) const;
-		List GetListFromId(int id) const;
-		char* GetCStringFromId(int id) const;
-		BYOND::Object GetContainerItem(BYOND::VariableType containerType, int containerId, BYOND::Object key);
+		std::string GetStringFromId(unsigned int id) const;
+		List GetListFromId(unsigned int id) const;
+		char* GetCStringFromId(unsigned int id) const;
+		BYOND::Object GetContainerItem(BYOND::VariableType containerType, unsigned int containerId, BYOND::Object key);
 
-		unsigned int AddToStringTable(std::string str);
+		static unsigned int GetByondString(std::string str);
+
+		static void BYOND::Variables::IncreaseStringRefcount(unsigned int id);
+		static void BYOND::Variables::DecreaseStringRefcount(unsigned int id);
 
 	private:
 		void* mob_list = nullptr;
-		char*** dynamic_string_table = nullptr;
-		unsigned int* dynamic_string_table_length = 0;
+		//char*** dynamic_string_table = nullptr;
+		//unsigned int* dynamic_string_table_length = 0;
 		bool init_done = false;
 		HOOK_TRACE_INFO globalTimerHookInfo = { 0 };
 
@@ -60,7 +64,7 @@ namespace BYOND
 		typedef void(__cdecl GetVariablePtr)(BYOND::ObjectType type, int datumId, int varNameId);
 		static GetVariablePtr* getVariable;
 
-		typedef char**(__cdecl GetStringPointerFromIdPtr)(int stringId);
+		typedef String*(__cdecl GetStringPointerFromIdPtr)(int stringId);
 		static GetStringPointerFromIdPtr* getStringPointerFromId;
 
 		typedef BYOND::ByondList*(__cdecl GetListPointerPtr)(int listId);
@@ -80,6 +84,9 @@ namespace BYOND
 
 		typedef void*(__cdecl GetContainerItemPtr)(VariableType containerType, int containerId, VariableType keyType, int keyValue);
 		static GetContainerItemPtr* getContainerItem;
+
+		typedef unsigned int(__cdecl GetStringTableIndexPtr)(const char* string, int unk1, int unk2);
+		static GetStringTableIndexPtr* getStringTableIndex;
 	};
 }
 extern BYOND::Variables vars;
