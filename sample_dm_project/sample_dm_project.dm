@@ -63,6 +63,10 @@
 	world << "Datum test successful! Argument: [arg]"
 	return arg
 
+/proc/global_proc_1(arg)
+	world << "Global proc test successful! Argument: [arg]"
+	return arg
+
 var/area/area_type_1/global_variable_area
 var/turf/turf_type_1/global_variable_turf
 var/obj/obj_type_1/global_variable_obj
@@ -104,3 +108,7 @@ var/unimportant_var = "nothing"
 
 /client/verb/generate_string()
 	world << input("new string") as text
+
+/client/verb/dynamic_proccall()
+	var/name = input("proc name") as text
+	call(name)()
