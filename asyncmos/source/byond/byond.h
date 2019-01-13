@@ -18,6 +18,7 @@ namespace BYOND
 		Global		= 0x0E,
 		Datum		= 0x21,
 		Savefile	= 0x23,
+		Path		= 0x26,
 		List		= 0x54
 	};
 
@@ -30,6 +31,7 @@ namespace BYOND
 		String		= 0x06,
 		List		= 0x0F,
 		Datum		= 0x21,
+		Path		= 0x26,
 		Number		= 0x2A
 	};
 

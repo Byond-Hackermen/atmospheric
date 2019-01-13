@@ -30,6 +30,8 @@ namespace BYOND
 
 		BYOND::Object CallObjectProc(BYOND::Object, std::string procName);
 		BYOND::Object CallObjectProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
+		BYOND::Object CallGlobalProc(std::string procName);
+		BYOND::Object CallGlobalProc(std::string procName, std::vector<Object> arguments);
 
 		std::string GetStringFromId(unsigned int id) const;
 		List GetListFromId(unsigned int id) const;
@@ -40,6 +42,9 @@ namespace BYOND
 
 		static void BYOND::Variables::IncreaseStringRefcount(unsigned int id);
 		static void BYOND::Variables::DecreaseStringRefcount(unsigned int id);
+
+		BYOND::Object Text2Path(unsigned int id);
+		BYOND::Object Text2Path(std::string text);
 
 	private:
 		bool init_done = false;
@@ -80,6 +85,12 @@ namespace BYOND
 
 		typedef unsigned int(__cdecl GetStringTableIndexPtr)(const char* string, int unk1, int unk2);
 		static GetStringTableIndexPtr* getStringTableIndex;
+
+		typedef void*(__cdecl Text2PathPtr)(unsigned int text);
+		static Text2PathPtr* text2path;
+
+		typedef void*(__cdecl CallGlobalProcPtr)(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, Object* argList, int argListLen, int const_0_2, int const_0_3);
+		static CallGlobalProcPtr* callGlobalProc;
 	};
 }
 extern BYOND::Variables vars;

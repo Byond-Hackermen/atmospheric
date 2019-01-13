@@ -97,8 +97,10 @@ void perform_tests()
 	BYOND::Object index2("associative list key 2");
 	assert(assocList[index2]->AsString() == "associative list value 2");
 
-	*list[0] = BYOND::Object(BYOND::VariableType::String, BYONDSTR("Adding new string to the string table!"));
-	assert(list[0]->AsString() == "Adding new string to the string table!");
+	BYOND::Object argument(static_cast<float>(5));
+	assert(vars.CallGlobalProc("/proc/global_proc_1", { argument }).AsNumber() == static_cast<float>(5));
+	//*list[0] = BYOND::Object(BYOND::VariableType::String, BYONDSTR("Adding new string to the string table!"));
+	//assert(list[0]->AsString() == "Adding new string to the string table!");
 }
 
 BYOND_EXPORT(test)

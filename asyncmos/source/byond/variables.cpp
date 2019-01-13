@@ -22,6 +22,8 @@ BYOND::Variables::ReadVariablePtr*				BYOND::Variables::readVariable = nullptr;
 BYOND::Variables::CallProcPtr*					BYOND::Variables::callProc = nullptr;
 BYOND::Variables::GetContainerItemPtr*			BYOND::Variables::getContainerItem = nullptr;
 BYOND::Variables::GetStringTableIndexPtr*		BYOND::Variables::getStringTableIndex = nullptr;
+BYOND::Variables::Text2PathPtr*					BYOND::Variables::text2path = nullptr;
+BYOND::Variables::CallGlobalProcPtr*			BYOND::Variables::callGlobalProc = nullptr;
 
 bool BYOND::Variables::Initialize()
 {
@@ -120,6 +122,18 @@ bool BYOND::Variables::GetFunctionPointers()
 	if (!Pocket::GetFunction<GetStringTableIndexPtr*>(getStringTableIndex, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 45 08 83 EC 18 53 8B 1D ?? ?? ?? ?? 56 57 85 C0 75 ?? 68 ?? ?? ?? ?? FF D3 83 C4 04 C6 45 10 00 80 7D 0C 00 89 45 E8 74 ?? 8D 45 10 50 8D 45 E8 50"))
 	{
 		MessageBoxA(nullptr, "Failed to acquire getStringTableIndex", "oh no!", 0);
+		return false;
+	}
+
+	if (!Pocket::GetFunction<Text2PathPtr*>(text2path, rangeStart, miModInfo.SizeOfImage, "55 8B EC 83 EC 08 56 57 8B 7D 08 57 E8 ?? ?? ?? ?? 83 C4 04 8B 30 A1 ?? ?? ?? ?? 89 45 FC A1 ?? ?? ?? ?? 89 45 F8 81 FF 9D 00 00 00 0F ?? ?? ?? ?? ?? 6A 06 57 E8 ?? ?? ?? ?? 52 50 FF 35 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B D0 83 C4 14 85 D2 74 ?? 8B 42 08"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire text2path", "oh no!", 0);
+		return false;
+	}
+
+	if (!Pocket::GetFunction<CallGlobalProcPtr*>(callGlobalProc, rangeStart, miModInfo.SizeOfImage, "55 8B EC 81 EC 98 00 00 00 A1 ?? ?? ?? ?? 33 C5 89 45 FC 8B 55 14 8B 45 30 89 85 6C FF FF FF 53 8B 5D 24 56 8B 75 2C 57 8B 7D 28 81 FA FF FF 00 00 75 ?? 0F 57 C0 66 0F 13 85 68 FF FF FF 8B BD 6C FF FF FF 8B 9D 68 FF FF FF 85 F6"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire callGlobalProc", "oh no!", 0);
 		return false;
 	}
 
@@ -246,7 +260,6 @@ BYOND::Object BYOND::Variables::GetContainerItem(BYOND::VariableType containerTy
 	unsigned int retValue;
 	BYOND::VariableType keyType = key.Type();
 	int keyValue = reinterpret_cast<int>(key.value);
-	getContainerItem(containerType, containerId, key.Type(), reinterpret_cast<int>(key.value));
 	__asm {
 		push keyValue
 		push keyType
@@ -275,3 +288,51 @@ unsigned int BYOND::Variables::GetByondString(std::string str)
 	IncreaseStringRefcount(index);
 	return index;
 }
+
+BYOND::Object BYOND::Variables::CallGlobalProc(std::string procName, std::vector<Object> arguments)
+{
+	BYOND::Object path = Text2Path(procName);
+	VariableType retType;
+	int retValue;
+	callGlobalProc(3, 1, 2, reinterpret_cast<unsigned int>(path.value), 0, 0, 0, arguments.data(), arguments.size(), 0, 0);
+	__asm {
+		mov retType, eax
+		mov retValue, edx
+	}
+	BYOND::Object retObj;
+	retObj.type = retType;
+	if (retObj.type == BYOND::VariableType::Number) {
+		retObj.value = *reinterpret_cast<void**>(&retValue);
+	}
+	else
+	{
+		retObj.value = reinterpret_cast<void*>(retValue);
+	}
+	return retObj;
+}
+
+BYOND::Object BYOND::Variables::CallGlobalProc(std::string procName)
+{
+	return CallGlobalProc(procName, std::vector<Object>());
+}
+
+BYOND::Object BYOND::Variables::Text2Path(unsigned int id)
+{
+	unsigned int retValue;
+	__asm {
+		push id
+		call text2path
+		add esp, 4
+		mov retValue, edx
+	}
+	BYOND::Object retObj;
+	retObj.type = VariableType::Path;
+	retObj.value = reinterpret_cast<void*>(retValue);
+	return retObj;
+}
+
+BYOND::Object BYOND::Variables::Text2Path(std::string text)
+{
+	return Text2Path(BYONDSTR(text));
+}
+
