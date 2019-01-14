@@ -17,28 +17,30 @@ namespace BYOND
 
 		BYOND::Object GetVariable(std::string varName) const;
 
-		template<typename T> T Get(std::string varName)
+		std::vector<std::string> GetVariableNames() const;
+
+		template<typename T> T Get(std::string varName) const
 		{
 			return GetVariable(varName).As(T);
 		}
 
-		template<> float Get(std::string varName)
+		template<> float Get(std::string varName) const
 		{
 			return GetVariable(varName).AsNumber();
 		}
 
-		template<> std::string Get(std::string varName)
+		template<> std::string Get(std::string varName) const
 		{
 			return GetVariable(varName).AsString();
 		}
 
-		template<> BYOND::List Get(std::string varName)
+		template<> BYOND::List Get(std::string varName) const
 		{
 			return GetVariable(varName).AsList();
 		}
 
-		BYOND::Object Call(std::string procName, std::vector<Object> args);
-		BYOND::Object Call(std::string procName);
+		BYOND::Object Call(std::string procName, std::vector<Object> args) const;
+		BYOND::Object Call(std::string procName) const;
 
 		VariableAccessProxy& operator[](std::string varName);
 	};

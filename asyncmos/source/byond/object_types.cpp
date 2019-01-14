@@ -22,14 +22,25 @@ BYOND::Object BYOND::DatumObject::GetVariable(std::string varName) const
 	return vars.ReadVariable(static_cast<ObjectType>(type), reinterpret_cast<int>(value), varName);
 }
 
-BYOND::Object BYOND::DatumObject::Call(std::string procName, std::vector<Object> args)
+BYOND::Object BYOND::DatumObject::Call(std::string procName, std::vector<Object> args) const
 {
 	return vars.CallObjectProc(*this, procName, args);
 }
 
-BYOND::Object BYOND::DatumObject::Call(std::string procName)
+BYOND::Object BYOND::DatumObject::Call(std::string procName) const
 {
 	return vars.CallObjectProc(*this, procName);
+}
+
+std::vector<std::string> BYOND::DatumObject::GetVariableNames() const
+{
+	BYOND::List varnames = Get<BYOND::List>("vars");
+	std::vector<std::string> result;
+	for(int i=0; i<varnames.Length(); i++)
+	{
+		result.push_back(varnames.At(i)->AsString());
+	}
+	return result;
 }
 
 BYOND::VariableAccessProxy& BYOND::DatumObject::operator[](std::string varName)
