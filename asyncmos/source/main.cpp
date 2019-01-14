@@ -19,6 +19,8 @@ void init_thread()
 	{
 		msg("Failed to initialize!", "heck");
 	}
+
+	vars.CallGlobalProc("/proc/to_chat", { BYOND::Variables::world, BYOND::Object("Asyncmos initialized!") });
 }
 
 BYOND_EXPORT(init)
@@ -35,16 +37,15 @@ BYOND_EXPORT(init)
 
 void process_thread()
 {
-	BYOND::List lst = vars.ReadGlobalVariable("mob_list").AsList();
-	//msg(Pocket::IntegerToStrHex((unsigned int)lst).c_str(), "address of mob list");
-	for (int i = 0; i < lst.Length(); i++)
-	{
-		BYOND::Mob mob = lst.At(i)->As(BYOND::Mob);
-
-		//msg(Pocket::IntegerToStrHex((int)mob->value).c_str(), "mob value");
-		msg(mob.GetVariable("color").AsString().c_str(), "mob color");
-		mob.Set("color", BYOND::VariableType::String, BYONDSTR("#00FF00"));
-		msg(mob.GetVariable("color").AsString().c_str(), "mob color after update");
+	float dirs[] = { 1, 2, 4, 8 };
+	while (true) {
+		BYOND::List lst = vars.ReadGlobalVariable("mob_list").AsList();
+		for (int i = 0; i < lst.Length(); i++)
+		{
+			BYOND::Mob mob = lst.At(i)->As(BYOND::Mob);
+			mob.Set("dir", BYOND::VariableType::Number, dirs[rand()%4]);
+			Sleep(1);
+		}
 	}
 }
 

@@ -29,6 +29,7 @@ namespace BYOND
 		Mob			= 0x03,
 		Area		= 0x04,
 		String		= 0x06,
+		World		= 0x0E,
 		List		= 0x0F,
 		Datum		= 0x21,
 		Path		= 0x26,

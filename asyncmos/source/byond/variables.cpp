@@ -25,6 +25,8 @@ BYOND::Variables::GetStringTableIndexPtr*		BYOND::Variables::getStringTableIndex
 BYOND::Variables::Text2PathPtr*					BYOND::Variables::text2path = nullptr;
 BYOND::Variables::CallGlobalProcPtr*			BYOND::Variables::callGlobalProc = nullptr;
 
+BYOND::Object BYOND::Variables::world;
+
 bool BYOND::Variables::Initialize()
 {
 	if (!GetFunctionPointers())
@@ -33,6 +35,7 @@ bool BYOND::Variables::Initialize()
 	if (!HookGlobalTimer())
 		return false;
 
+	world = BYOND::Object(BYOND::VariableType::World, 0);
 	init_done = true;
 
 	return true;
@@ -200,6 +203,11 @@ void BYOND::Variables::SetVariable(ObjectType type, int datumId, std::string var
 	setVariable(type, datumId, BYONDSTR(varName), varType, *reinterpret_cast<void**>(&new_value));
 }
 
+void BYOND::Variables::SetVariable(BYOND::ObjectType type, int datumId, std::string varName, std::string new_value) const
+{
+	SetVariable(type, datumId, varName, VariableType::String, BYONDSTR(new_value));
+}
+
 BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName, std::vector<Object> arguments)
 {
 	std::replace(procName.begin(), procName.end(), '_', ' ');
@@ -294,6 +302,8 @@ BYOND::Object BYOND::Variables::CallGlobalProc(std::string procName, std::vector
 	BYOND::Object path = Text2Path(procName);
 	VariableType retType;
 	int retValue;
+	ULONG ACLEntries[1] = { 0 };
+	LhSetInclusiveACL(ACLEntries, 1, &globalTimerHookInfo);
 	callGlobalProc(3, 1, 2, reinterpret_cast<unsigned int>(path.value), 0, 0, 0, arguments.data(), arguments.size(), 0, 0);
 	__asm {
 		mov retType, eax

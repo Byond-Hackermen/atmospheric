@@ -12,6 +12,7 @@ namespace BYOND
 	{
 	public:
 		void Set(std::string varName, VariableType varType, unsigned int new_value) const;
+		void Set(std::string varName, std::string new_value) const;
 		void Set(std::string varName, VariableType varType, float new_value) const;
 
 		BYOND::Object GetVariable(std::string varName) const;

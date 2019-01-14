@@ -12,6 +12,11 @@ void BYOND::DatumObject::Set(std::string varName, VariableType varType, float ne
 	vars.SetVariable(static_cast<ObjectType>(type), reinterpret_cast<int>(value), varName, varType, new_value);
 }
 
+void BYOND::DatumObject::Set(std::string varName, std::string new_value) const
+{
+	Set(varName, VariableType::String, BYONDSTR(new_value));
+}
+
 BYOND::Object BYOND::DatumObject::GetVariable(std::string varName) const
 {
 	return vars.ReadVariable(static_cast<ObjectType>(type), reinterpret_cast<int>(value), varName);

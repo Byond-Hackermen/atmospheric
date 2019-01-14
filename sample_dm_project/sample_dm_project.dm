@@ -109,6 +109,9 @@ var/unimportant_var = "nothing"
 /client/verb/generate_string()
 	world << input("new string") as text
 
+/client/verb/print_world_ref()
+	world << "\ref[world]"
+
 /client/verb/dynamic_proccall()
 	var/name = input("proc name") as text
 	call(name)()

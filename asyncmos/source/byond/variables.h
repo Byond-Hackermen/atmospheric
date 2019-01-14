@@ -19,6 +19,8 @@ namespace BYOND
 		bool Initialize();
 		bool Ready() const { return init_done; }
 
+		static BYOND::Object world;
+
 	public:
 		BYOND::Object ReadVariable(BYOND::ObjectType type, int datumId, std::string varName);
 		BYOND::Object ReadVariable(BYOND::Object obj, std::string varName);
@@ -26,6 +28,7 @@ namespace BYOND
 		BYOND::Object ReadGlobalVariable(std::string name);
 
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, unsigned int new_value) const;
+		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, std::string new_value) const;
 		void SetVariable(BYOND::ObjectType type, int datumId, std::string varName, BYOND::VariableType varType, float new_value) const;
 
 		BYOND::Object CallObjectProc(BYOND::Object, std::string procName);
