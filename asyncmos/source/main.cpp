@@ -43,7 +43,7 @@ void process_thread()
 
 		//msg(Pocket::IntegerToStrHex((int)mob->value).c_str(), "mob value");
 		msg(mob.GetVariable("color").AsString().c_str(), "mob color");
-		mob.SetVariable("color", BYOND::VariableType::String, BYONDSTR("#00FF00"));
+		mob.Set("color", BYOND::VariableType::String, BYONDSTR("#00FF00"));
 		msg(mob.GetVariable("color").AsString().c_str(), "mob color after update");
 	}
 }
@@ -67,12 +67,12 @@ void test_object(std::string objType, BYOND::VariableType expectedVariableType)
 	assert(object.value == 0);
 
 	BYOND::Object argument(static_cast<float>(5));
-	assert(object.CallProc(objType + "_test_proc", { argument }).AsNumber() == argument.AsNumber());
+	assert(object.Call(objType + "_test_proc", { argument }).AsNumber() == argument.AsNumber());
 
-	assert(object.GetVariable(objType + "_variable_number").AsNumber() == static_cast<float>(5));
-	assert(object.GetVariable(objType + "_variable_string").AsString() == objType + " variable of type string");
+	assert(object.Get<float>(objType + "_variable_number") == static_cast<float>(5));
+	assert(object.Get<std::string>(objType + "_variable_string") == objType + " variable of type string");
 
-	BYOND::List object_list_var = object.GetVariable(objType + "_variable_list").AsList();
+	BYOND::List object_list_var = object.Get<BYOND::List>(objType + "_variable_list");
 	assert(object_list_var[0]->AsString() == objType + " variable list element 1");
 	assert(object_list_var[1]->AsString() == objType + " variable list element 2");
 
