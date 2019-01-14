@@ -29,7 +29,8 @@ Represents an atom or datum. You can get and set variables and call procs using 
 * `BYOND::Object GetVariable(std::string varName)`
 * `T Get<T>(std::string varName)` - You may pass a subtype of `DatumObject`, an `std::string`, `float`, or `BYOND::List` as T.
 * `BYOND::Object Call(std::string procName, std::vector<Object> arguments)` - For convenience you may pass the arguments as an initializer list: `x.Call("proc", { BYOND::Object("Hello, world!") })`
-##### vars
+
+#### vars
 The global variable `BYOND::Variables vars` is used to interact with global stuff.
 * `BYOND::Object ReadGlobalVariable(std::string name);`
 * `BYOND::Object CallGlobalProc(std::string procName);`
