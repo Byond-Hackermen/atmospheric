@@ -20,7 +20,7 @@ void init_thread()
 		msg("Failed to initialize!", "heck");
 	}
 
-	vars.CallGlobalProc("/proc/to_chat", { BYOND::Variables::world, BYOND::Object("Asyncmos initialized!") });
+	//vars.CallGlobalProc("/proc/to_chat", { BYOND::Variables::world, BYOND::Object("Asyncmos initialized!") });
 }
 
 BYOND_EXPORT(init)
