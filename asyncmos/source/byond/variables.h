@@ -6,6 +6,7 @@
 #include "object.h"
 #include "bstring.h"
 #include <easyhook.h>
+#include <mutex>
 
 namespace BYOND
 {
@@ -52,13 +53,19 @@ namespace BYOND
 	private:
 		bool init_done = false;
 		HOOK_TRACE_INFO globalTimerHookInfo = { 0 };
+		HOOK_TRACE_INFO callProcHookInfo = { 0 };
 
 	private:
 		// Internal
 		bool GetFunctionPointers();
 		bool HookGlobalTimer();
+		bool MakeProcCallThreadsafe();
 
 	public:
+		static ::std::recursive_mutex callproc_mutex;
+
+	public:
+
 		typedef void(__cdecl SetVariablePtr)(BYOND::ObjectType type, int datumId, int varNameId, BYOND::VariableType varType, void* newValue);
 		static SetVariablePtr* setVariable;
 
@@ -77,22 +84,22 @@ namespace BYOND
 		typedef void(__cdecl RemoveFromContainerPtr)(BYOND::VariableType containerType, int containerId, BYOND::VariableType varType, void* varValue);
 		static RemoveFromContainerPtr* removeFromContainer;
 
-		typedef void(__cdecl ReadVariablePtr)(BYOND::ObjectType type, int datumId, int varNameId);
+		typedef temporary_return_value_holder(__cdecl ReadVariablePtr)(BYOND::ObjectType type, int datumId, int varNameId);
 		static ReadVariablePtr* readVariable;
 
-		typedef void*(__cdecl CallProcPtr)(int unk1, int unk2, ProcType procType, int procName, ObjectType datumType, int datumId, Object* argList, int argListLen, int unk4, int unk5);
+		typedef temporary_return_value_holder(__cdecl CallProcPtr)(int unk1, int unk2, ProcType procType, int procName, ObjectType datumType, int datumId, Object* argList, int argListLen, int unk4, int unk5);
 		static CallProcPtr* callProc;
 
-		typedef void*(__cdecl GetContainerItemPtr)(VariableType containerType, int containerId, VariableType keyType, int keyValue);
+		typedef temporary_return_value_holder(__cdecl GetContainerItemPtr)(VariableType containerType, int containerId, VariableType keyType, int keyValue);
 		static GetContainerItemPtr* getContainerItem;
 
 		typedef unsigned int(__cdecl GetStringTableIndexPtr)(const char* string, int unk1, int unk2);
 		static GetStringTableIndexPtr* getStringTableIndex;
 
-		typedef void*(__cdecl Text2PathPtr)(unsigned int text);
+		typedef temporary_return_value_holder(__cdecl Text2PathPtr)(unsigned int text);
 		static Text2PathPtr* text2path;
 
-		typedef void*(__cdecl CallGlobalProcPtr)(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, Object* argList, int argListLen, int const_0_2, int const_0_3);
+		typedef temporary_return_value_holder(__cdecl CallGlobalProcPtr)(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, Object* argList, int argListLen, int const_0_2, int const_0_3);
 		static CallGlobalProcPtr* callGlobalProc;
 	};
 }

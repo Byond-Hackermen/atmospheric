@@ -26,6 +26,7 @@ BYOND::Variables::Text2PathPtr*					BYOND::Variables::text2path = nullptr;
 BYOND::Variables::CallGlobalProcPtr*			BYOND::Variables::callGlobalProc = nullptr;
 
 BYOND::Object BYOND::Variables::world;
+std::recursive_mutex BYOND::Variables::callproc_mutex;
 
 bool BYOND::Variables::Initialize()
 {
@@ -33,6 +34,9 @@ bool BYOND::Variables::Initialize()
 		return false;
 
 	if (!HookGlobalTimer())
+		return false;
+
+	if (!MakeProcCallThreadsafe())
 		return false;
 
 	world = BYOND::Object(BYOND::VariableType::World, 0);
@@ -57,6 +61,30 @@ bool BYOND::Variables::HookGlobalTimer() //gonna need a function to unhook and c
 	if (FAILED(result))
 	{
 		MessageBoxA(nullptr, "Failed to install GlobalTimer::Start hook!", "oh crap!", 0);
+		return false;
+	}
+	return true;
+}
+
+BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, BYOND::Object* argList, int argListLen, int const_0_2, int const_0_3)
+{
+	std::lock_guard<std::recursive_mutex> our_lock(BYOND::Variables::callproc_mutex);
+	return BYOND::Variables::callGlobalProc(unk1, unk2, const_2, proc_id, const_0, unk3, unk4, argList, argListLen, const_0_2, const_0_3);
+}
+
+bool BYOND::Variables::MakeProcCallThreadsafe()
+{
+	NTSTATUS result = LhInstallHook(
+		callGlobalProc,
+		callprochook,
+		NULL,
+		&callProcHookInfo);
+	ULONG ACLEntries[1] = { 1 };
+	LhSetExclusiveACL(ACLEntries, 1, &callProcHookInfo);
+
+	if (FAILED(result))
+	{
+		MessageBoxA(nullptr, "Failed to install call_proc_by_id hook!", "oh crap!", 0);
 		return false;
 	}
 	return true;
@@ -150,31 +178,7 @@ bool BYOND::Variables::GetFunctionPointers()
 
 BYOND::Object BYOND::Variables::ReadVariable(ObjectType type, int datumId, const std::string varName)
 {
-	VariableType varType;
-	unsigned int varValue;
-	int varNameId = BYONDSTR(varName);
-	ObjectType differentlyNamedType = type;
-	//readVariable(type, datumId, BYONDSTR(varName));
-	__asm {
-		push varNameId
-		push datumId
-		push differentlyNamedType
-		call readVariable
-		add esp, 12
-		mov varType, eax
-		mov varValue, edx
-	}
-	Object obj{};
-	obj.type = static_cast<VariableType>(varType);
-	if (obj.type == BYOND::VariableType::Number) {
-		obj.value = *reinterpret_cast<void**>(&varValue);
-	}
-	else
-	{
-		obj.value = reinterpret_cast<void*>(varValue);
-	}
-
-	return obj;
+	return BYOND::Object(readVariable(type, datumId, BYONDSTR(varName)));
 }
 
 BYOND::Object BYOND::Variables::ReadVariable(BYOND::Object obj, const std::string varName)
@@ -213,23 +217,7 @@ BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName,
 	std::replace(procName.begin(), procName.end(), '_', ' ');
 	ULONG ACLEntries[1] = { 0 };
 	LhSetInclusiveACL(ACLEntries, 1, &globalTimerHookInfo);
-	BYOND::VariableType retType;
-	unsigned int retValue;
-	callProc(0, 0, ProcType::Proc, BYONDSTR(procName), static_cast<ObjectType>(obj.Type()), reinterpret_cast<int>(obj.value), arguments.data(), arguments.size(), 0, 0);
-	__asm {
-		mov retType, eax
-		mov retValue, edx
-		}
-	BYOND::Object retObj;
-	retObj.type = retType;
-	if (retObj.type == BYOND::VariableType::Number) {
-		retObj.value = *reinterpret_cast<void**>(&retValue);
-	}
-	else
-	{
-		retObj.value = reinterpret_cast<void*>(retValue);
-	}
-	return retObj;
+	return BYOND::Object(callProc(0, 0, ProcType::Proc, BYONDSTR(procName), static_cast<ObjectType>(obj.Type()), reinterpret_cast<int>(obj.value), arguments.data(), arguments.size(), 0, 0));
 }
 
 BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName)
@@ -264,30 +252,7 @@ void BYOND::Variables::DecreaseStringRefcount(unsigned int id)
 
 BYOND::Object BYOND::Variables::GetContainerItem(BYOND::VariableType containerType, unsigned int containerId, BYOND::Object key)
 {
-	BYOND::VariableType retType;
-	unsigned int retValue;
-	BYOND::VariableType keyType = key.Type();
-	int keyValue = reinterpret_cast<int>(key.value);
-	__asm {
-		push keyValue
-		push keyType
-		push containerId
-		push containerType
-		call getContainerItem
-		add esp, 16
-		mov retType, eax
-		mov retValue, edx
-	}
-	BYOND::Object retObj;
-	retObj.type = retType;
-	if (retObj.type == BYOND::VariableType::Number) {
-		retObj.value = *reinterpret_cast<void**>(&retValue);
-	}
-	else
-	{
-		retObj.value = reinterpret_cast<void*>(retValue);
-	}
-	return retObj;
+	return BYOND::Object(getContainerItem(containerType, containerId, key.Type(), reinterpret_cast<int>(key.value)));
 }
 
 unsigned int BYOND::Variables::GetByondString(std::string str)
@@ -300,25 +265,9 @@ unsigned int BYOND::Variables::GetByondString(std::string str)
 BYOND::Object BYOND::Variables::CallGlobalProc(std::string procName, std::vector<Object> arguments)
 {
 	BYOND::Object path = Text2Path(procName);
-	VariableType retType;
-	int retValue;
 	ULONG ACLEntries[1] = { 0 };
 	LhSetInclusiveACL(ACLEntries, 1, &globalTimerHookInfo);
-	callGlobalProc(3, 1, 2, reinterpret_cast<unsigned int>(path.value), 0, 0, 0, arguments.data(), arguments.size(), 0, 0);
-	__asm {
-		mov retType, eax
-		mov retValue, edx
-	}
-	BYOND::Object retObj;
-	retObj.type = retType;
-	if (retObj.type == BYOND::VariableType::Number) {
-		retObj.value = *reinterpret_cast<void**>(&retValue);
-	}
-	else
-	{
-		retObj.value = reinterpret_cast<void*>(retValue);
-	}
-	return retObj;
+	return BYOND::Object(callGlobalProc(3, 1, 2, reinterpret_cast<unsigned int>(path.value), 0, 0, 0, arguments.data(), arguments.size(), 0, 0));
 }
 
 BYOND::Object BYOND::Variables::CallGlobalProc(std::string procName)
@@ -328,17 +277,7 @@ BYOND::Object BYOND::Variables::CallGlobalProc(std::string procName)
 
 BYOND::Object BYOND::Variables::Text2Path(unsigned int id)
 {
-	unsigned int retValue;
-	__asm {
-		push id
-		call text2path
-		add esp, 4
-		mov retValue, edx
-	}
-	BYOND::Object retObj;
-	retObj.type = VariableType::Path;
-	retObj.value = reinterpret_cast<void*>(retValue);
-	return retObj;
+	return BYOND::Object(text2path(id));
 }
 
 BYOND::Object BYOND::Variables::Text2Path(std::string text)

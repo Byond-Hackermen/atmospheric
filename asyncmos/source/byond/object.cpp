@@ -27,6 +27,12 @@ BYOND::Object::Object(std::string value)
 	this->value = reinterpret_cast<void*>(BYONDSTR(value));
 }
 
+BYOND::Object::Object(struct temporary_return_value_holder ret)
+{
+	this->type = ret.type;
+	this->value = ret.value;
+}
+
 std::string BYOND::Object::AsString() const
 {
 	return vars.GetStringFromId(reinterpret_cast<int>(value));

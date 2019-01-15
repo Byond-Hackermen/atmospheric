@@ -42,6 +42,12 @@ namespace BYOND
 		Verb		= 0x15
 	};
 
+	struct temporary_return_value_holder
+	{
+		VariableType type;
+		void* value;
+	};
+
 	std::string GetByondAbout();
 	int GetByondVersion();
 	int GetByondBuild();

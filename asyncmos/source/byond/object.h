@@ -16,6 +16,7 @@ namespace BYOND
 		Object(BYOND::VariableType type, int value);
 		Object(float value);
 		Object(std::string value);
+		Object(struct temporary_return_value_holder ret);
 		BYOND::VariableType type;
 		void* value;
 

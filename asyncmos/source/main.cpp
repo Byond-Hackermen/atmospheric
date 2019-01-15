@@ -34,18 +34,12 @@ BYOND_EXPORT(init)
 	return nullptr;
 }
 
-
 void process_thread()
 {
-	float dirs[] = { 1, 2, 4, 8 };
-	while (true) {
-		BYOND::List lst = vars.ReadGlobalVariable("mob_list").AsList();
-		for (int i = 0; i < lst.Length(); i++)
-		{
-			BYOND::Mob mob = lst.At(i)->As(BYOND::Mob);
-			mob.Set("dir", BYOND::VariableType::Number, dirs[rand()%4]);
-			Sleep(1);
-		}
+	while(true)
+	{
+		vars.CallGlobalProc("/proc/to_chat", { BYOND::Variables::world, BYOND::Object("Hello, world!") });
+		Sleep(250);
 	}
 }
 
