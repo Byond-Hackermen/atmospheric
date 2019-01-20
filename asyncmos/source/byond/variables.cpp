@@ -29,6 +29,8 @@ BYOND::Object BYOND::Variables::world;
 std::recursive_mutex BYOND::Variables::callglobalproc_mutex;
 std::recursive_mutex BYOND::Variables::callproc_mutex;
 
+bool datum_test_hook(BYOND::Variables::CallProcHookInfo* info);
+
 bool BYOND::Variables::Initialize()
 {
 	if (!GetFunctionPointers())
@@ -45,6 +47,8 @@ bool BYOND::Variables::Initialize()
 
 	world = BYOND::Object(BYOND::VariableType::World, 0);
 	init_done = true;
+
+	callProcHooks["datum_test_proc"] = datum_test_hook;
 
 	return true;
 }
@@ -73,7 +77,6 @@ bool BYOND::Variables::HookGlobalTimer() //gonna need a function to unhook and c
 BYOND::temporary_return_value_holder callglobalprochook(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, BYOND::Object* argList, int argListLen, int const_0_2, int const_0_3)
 {
 	std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callglobalproc_mutex);
-	MessageBoxA(NULL, Pocket::IntegerToStrHex(proc_id).c_str(), "yeh2", NULL);
 	return BYOND::Variables::callGlobalProc(unk1, unk2, const_2, proc_id, const_0, unk3, unk4, argList, argListLen, const_0_2, const_0_3);
 }
 
@@ -97,27 +100,59 @@ bool BYOND::Variables::MakeProcCallThreadsafe()
 
 BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, BYOND::ProcType procType, int procName, BYOND::ObjectType datumType, int datumId, BYOND::Object* argList, int argListLen, int unk4, int unk5)
 {
+	__asm {
+		pushad
+		pushfd
+		}
+	std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
 	std::string name(BYOND::Variables::getStringPointerFromId(procName)->stringData);
-	if(name != "Stat" && name != "Del" && name != "Logout") MessageBoxA(NULL, name.c_str(), "yeh", NULL);
-	//std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
-	return BYOND::Variables::callProc(unk1, unk2, procType, procName, datumType, datumId, argList, argListLen, unk4, unk5);
+	std::replace(name.begin(), name.end(), ' ', '_');
+	if(vars.callProcHooks.find(name) != vars.callProcHooks.end())
+	{
+		BYOND::Variables::CallProcHookInfo info;
+		std::vector<BYOND::Object> args;
+		for(int i=0; i<argListLen; i++)
+		{
+			args.push_back(*(argList + i));
+		}
+		info.args = args;
+		if(!vars.callProcHooks[name](&info))
+		{
+			BYOND::temporary_return_value_holder trvh;
+			trvh.value = info.returnValue.value;
+			trvh.type = info.returnValue.type;
+			__asm {
+				popfd
+				popad
+				}
+			return trvh;
+		}
+	}
+	__asm {
+		popfd
+		popad
+		mov eax, BYOND::Variables::callProc
+		add eax, 7
+		jmp eax
+		};
 }
 
 bool BYOND::Variables::HookObjectProcCalls()
 {
-	NTSTATUS result = LhInstallHook(
-		callProc,
-		callprochook,
-		NULL,
-		&callProcHookInfo);
-	ULONG ACLEntries[1] = { 1 };
-	LhSetExclusiveACL(ACLEntries, 1, &callProcHookInfo);
+	DWORD new_prot = PAGE_EXECUTE_READWRITE;
+	DWORD old;
+	VirtualProtect(callProc, 5, new_prot, &old);
+	DWORD offset = (DWORD)callprochook - (DWORD)callProc - 5;
+	unsigned char* addr = (unsigned char*)&offset;
+	*(unsigned char*)callProc = 0xE9;
+	std::memcpy((void*)((unsigned char*)callProc + 1), addr, 4);
+	VirtualProtect(callProc, 5, old, &new_prot);
+	return true;
+}
 
-	if (FAILED(result))
-	{
-		MessageBoxA(nullptr, "Failed to install call_object_proc hook!", "oh crap!", 0);
-		return false;
-	}
+bool datum_test_hook(BYOND::Variables::CallProcHookInfo* info)
+{
+	MessageBoxA(NULL, "datum test not blocked as the hook returned true", "no way", NULL);
 	return true;
 }
 

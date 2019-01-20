@@ -12,6 +12,7 @@ namespace BYOND
 {
 	class List;
 	struct ByondList;
+	struct CallProcHookInfo;
 
 	class Variables
 	{
@@ -62,6 +63,15 @@ namespace BYOND
 		bool HookGlobalTimer();
 		bool MakeProcCallThreadsafe();
 		bool HookObjectProcCalls();
+
+		struct CallProcHookInfo
+		{
+			std::vector<Object> args;
+			BYOND::Object returnValue;
+		};
+
+		typedef bool(__cdecl CallProcHookFunction)(CallProcHookInfo* procInfo);
+		std::map<std::string, CallProcHookFunction*> callProcHooks;
 
 	public:
 		static ::std::recursive_mutex callproc_mutex;
