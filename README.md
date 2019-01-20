@@ -32,10 +32,25 @@ Represents an atom or datum. You can get and set variables and call procs using 
 * `std::vector<std::string> GetVariableNames()`
 
 #### vars
-The global variable `BYOND::Variables vars` is used to interact with global stuff.
+The global variable `BYOND::Variables vars` is used to interact with global stuff and hook procs.
 * `BYOND::Object ReadGlobalVariable(std::string name);`
 * `BYOND::Object CallGlobalProc(std::string procName);`
 * `BYOND::Object CallGlobalProc(std::string procName, std::vector<BYOND::Object> arguments);`
+* `void HookProc(std::string procName, CallProcHookFunction* hookFunc)`
+* `void HookProc(std::string procName, CallProcHookFunction* hookFunc, BYOND::Variables::ObjectType)`
+* `void HookProc(std::string procName, CallProcHookFunction* hookFunc,
+              BYOND::Variables::ObjectType, (int|float) value`
+* `void UnhookProc(std::string procName)`
+
+#### Hooking procs
+You may hook proc calls with `vars.HookProc`. The function to invoke must have the following signature:
+`bool hook(BYOND::Variables::CallProcHookInfo* info)`
+CallProcHookInfo is a structure containing the following fields:
+* `BYOND::Object* args` - An array of arguments passed to the proc. You can modify this to change the arguments.
+* `int numArgs` - The number of arguments.
+* `BYOND::Object returnValue` - The value returned by the proc, **only if you choose to return immediately rather than run the proc.**
+
+Return `true` to allow the proc to run. Returning `false` prevents the proc from running and returns `returnValue` instead to the caller.
 
 ## Example
 	float dirs[] = { 1, 2, 4, 8 };
