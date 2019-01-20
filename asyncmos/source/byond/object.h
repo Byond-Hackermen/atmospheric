@@ -17,6 +17,8 @@ namespace BYOND
 		Object(float value);
 		Object(std::string value);
 		Object(struct temporary_return_value_holder ret);
+		friend bool operator==(const Object& lhs, const Object& rhs);
+		friend bool operator!=(const Object& lhs, const Object& rhs);
 		BYOND::VariableType type;
 		void* value;
 

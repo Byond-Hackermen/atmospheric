@@ -36,9 +36,20 @@ BYOND_EXPORT(init)
 
 void process_thread()
 {
+	auto mobs = vars.ReadGlobalVariable("mob_list").AsList();
+	BYOND::Mob me;
+	for(int i=0; i<mobs.Length(); i++)
+	{
+		auto m = mobs[i]->As(BYOND::Mob);
+		if(m.Get<std::string>("name") == "Francesca Owens")
+		{
+			me = m;
+			break;
+		}
+	}
 	while(true)
 	{
-		vars.CallGlobalProc("/proc/to_chat", { BYOND::Variables::world, BYOND::Object("Hello, world!") });
+		me.Call("say", { BYOND::Object("Hello, world!") });
 		Sleep(250);
 	}
 }
