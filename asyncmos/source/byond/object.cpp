@@ -33,12 +33,12 @@ BYOND::Object::Object(struct temporary_return_value_holder ret)
 	this->value = ret.value;
 }
 
-bool operator==(const BYOND::Object& lhs, const BYOND::Object& rhs)
+bool BYOND::operator==(const BYOND::Object& lhs, const BYOND::Object& rhs)
 {
 	return lhs.type == rhs.type && lhs.value == rhs.value;
 }
 
-bool operator!=(const BYOND::Object& lhs, const BYOND::Object& rhs)
+bool BYOND::operator!=(const BYOND::Object& lhs, const BYOND::Object& rhs)
 {
 	return !(&lhs == &rhs);
 }

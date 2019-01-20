@@ -3,6 +3,8 @@
 #include "..\byond\variables.h"
 #include "..\byond\list.h"
 #include "..\byond\object_types.h"
+#include "..\byond\object.h"
+
 namespace Atmospherics {
 	enum Defines
 	{

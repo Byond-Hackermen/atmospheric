@@ -50,19 +50,22 @@ namespace BYOND
 		BYOND::Object Text2Path(unsigned int id);
 		BYOND::Object Text2Path(std::string text);
 
-	private:
+	public:
 		bool init_done = false;
 		HOOK_TRACE_INFO globalTimerHookInfo = { 0 };
+		HOOK_TRACE_INFO callGlobalProcHookInfo = { 0 };
 		HOOK_TRACE_INFO callProcHookInfo = { 0 };
 
-	private:
+	public:
 		// Internal
 		bool GetFunctionPointers();
 		bool HookGlobalTimer();
 		bool MakeProcCallThreadsafe();
+		bool HookObjectProcCalls();
 
 	public:
 		static ::std::recursive_mutex callproc_mutex;
+		static ::std::recursive_mutex callglobalproc_mutex;
 
 	public:
 

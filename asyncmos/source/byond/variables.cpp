@@ -26,6 +26,7 @@ BYOND::Variables::Text2PathPtr*					BYOND::Variables::text2path = nullptr;
 BYOND::Variables::CallGlobalProcPtr*			BYOND::Variables::callGlobalProc = nullptr;
 
 BYOND::Object BYOND::Variables::world;
+std::recursive_mutex BYOND::Variables::callglobalproc_mutex;
 std::recursive_mutex BYOND::Variables::callproc_mutex;
 
 bool BYOND::Variables::Initialize()
@@ -37,6 +38,9 @@ bool BYOND::Variables::Initialize()
 		return false;
 
 	if (!MakeProcCallThreadsafe())
+		return false;
+
+	if (!HookObjectProcCalls())
 		return false;
 
 	world = BYOND::Object(BYOND::VariableType::World, 0);
@@ -66,9 +70,10 @@ bool BYOND::Variables::HookGlobalTimer() //gonna need a function to unhook and c
 	return true;
 }
 
-BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, BYOND::Object* argList, int argListLen, int const_0_2, int const_0_3)
+BYOND::temporary_return_value_holder callglobalprochook(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, BYOND::Object* argList, int argListLen, int const_0_2, int const_0_3)
 {
-	std::lock_guard<std::recursive_mutex> our_lock(BYOND::Variables::callproc_mutex);
+	std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callglobalproc_mutex);
+	MessageBoxA(NULL, Pocket::IntegerToStrHex(proc_id).c_str(), "yeh2", NULL);
 	return BYOND::Variables::callGlobalProc(unk1, unk2, const_2, proc_id, const_0, unk3, unk4, argList, argListLen, const_0_2, const_0_3);
 }
 
@@ -76,6 +81,32 @@ bool BYOND::Variables::MakeProcCallThreadsafe()
 {
 	NTSTATUS result = LhInstallHook(
 		callGlobalProc,
+		callglobalprochook,
+		NULL,
+		&callGlobalProcHookInfo);
+	ULONG ACLEntries[1] = { 1 };
+	LhSetExclusiveACL(ACLEntries, 1, &callGlobalProcHookInfo);
+
+	if (FAILED(result))
+	{
+		MessageBoxA(nullptr, "Failed to install call_proc_by_id hook!", "oh crap!", 0);
+		return false;
+	}
+	return true;
+}
+
+BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, BYOND::ProcType procType, int procName, BYOND::ObjectType datumType, int datumId, BYOND::Object* argList, int argListLen, int unk4, int unk5)
+{
+	std::string name(BYOND::Variables::getStringPointerFromId(procName)->stringData);
+	if(name != "Stat" && name != "Del" && name != "Logout") MessageBoxA(NULL, name.c_str(), "yeh", NULL);
+	//std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
+	return BYOND::Variables::callProc(unk1, unk2, procType, procName, datumType, datumId, argList, argListLen, unk4, unk5);
+}
+
+bool BYOND::Variables::HookObjectProcCalls()
+{
+	NTSTATUS result = LhInstallHook(
+		callProc,
 		callprochook,
 		NULL,
 		&callProcHookInfo);
@@ -84,7 +115,7 @@ bool BYOND::Variables::MakeProcCallThreadsafe()
 
 	if (FAILED(result))
 	{
-		MessageBoxA(nullptr, "Failed to install call_proc_by_id hook!", "oh crap!", 0);
+		MessageBoxA(nullptr, "Failed to install call_object_proc hook!", "oh crap!", 0);
 		return false;
 	}
 	return true;
