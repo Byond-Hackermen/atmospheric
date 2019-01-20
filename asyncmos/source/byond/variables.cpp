@@ -29,8 +29,6 @@ BYOND::Object BYOND::Variables::world;
 std::recursive_mutex BYOND::Variables::callglobalproc_mutex;
 std::recursive_mutex BYOND::Variables::callproc_mutex;
 
-bool datum_test_hook(BYOND::Variables::CallProcHookInfo* info);
-
 bool BYOND::Variables::Initialize()
 {
 	if (!GetFunctionPointers())
@@ -47,8 +45,6 @@ bool BYOND::Variables::Initialize()
 
 	world = BYOND::Object(BYOND::VariableType::World, 0);
 	init_done = true;
-
-	callProcHooks["datum_test_proc"] = datum_test_hook;
 
 	return true;
 }
@@ -104,19 +100,35 @@ BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, BYOND::Pro
 		pushad
 		pushfd
 		}
-	std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
+	//std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
 	std::string name(BYOND::Variables::getStringPointerFromId(procName)->stringData);
-	std::replace(name.begin(), name.end(), ' ', '_');
+	datumType = static_cast<BYOND::ObjectType>(static_cast<unsigned char>(datumType));
 	if(vars.callProcHooks.find(name) != vars.callProcHooks.end())
 	{
-		BYOND::Variables::CallProcHookInfo info;
-		std::vector<BYOND::Object> args;
-		for(int i=0; i<argListLen; i++)
+		BYOND::Variables::InternalCallProcHookInfo internal_info = vars.callProcHooks[name];
+		switch (internal_info.filter.type)
 		{
-			args.push_back(*(argList + i));
+		case BYOND::Variables::ProcHookFilterType::None:
+			goto run_hook;
+			break;
+		case BYOND::Variables::ProcHookFilterType::Type:
+			if (datumType == internal_info.filter.objType) goto run_hook;
+			else goto run_proc;
+			break;
+		case BYOND::Variables::ProcHookFilterType::Object:
+			if (datumType == internal_info.filter.objType &&
+				datumId == reinterpret_cast<int>(internal_info.filter.objValue)) goto run_hook;
+			else goto run_proc;
+			break;
+		default:
+			MessageBoxA(NULL, "Invalid proc hook filter type!", "fix yo code", NULL);
+			goto run_proc;
 		}
-		info.args = args;
-		if(!vars.callProcHooks[name](&info))
+		run_hook:
+		BYOND::Variables::CallProcHookInfo info;
+		info.args = argList;
+		info.numArgs = argListLen;
+		if(!internal_info.hookFunc(&info))
 		{
 			BYOND::temporary_return_value_holder trvh;
 			trvh.value = info.returnValue.value;
@@ -128,6 +140,8 @@ BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, BYOND::Pro
 			return trvh;
 		}
 	}
+	run_proc:
+	name.~basic_string();
 	__asm {
 		popfd
 		popad
@@ -144,16 +158,48 @@ bool BYOND::Variables::HookObjectProcCalls()
 	VirtualProtect(callProc, 5, new_prot, &old);
 	DWORD offset = (DWORD)callprochook - (DWORD)callProc - 5;
 	unsigned char* addr = (unsigned char*)&offset;
-	*(unsigned char*)callProc = 0xE9;
+	*(unsigned char*)callProc = 0xE9; //JMP
 	std::memcpy((void*)((unsigned char*)callProc + 1), addr, 4);
 	VirtualProtect(callProc, 5, old, &new_prot);
 	return true;
 }
 
-bool datum_test_hook(BYOND::Variables::CallProcHookInfo* info)
+void BYOND::Variables::HookProc(std::string procName, CallProcHookFunction* func, ProcHookFilter filter)
 {
-	MessageBoxA(NULL, "datum test not blocked as the hook returned true", "no way", NULL);
-	return true;
+	InternalCallProcHookInfo info;
+	info.filter = filter;
+	info.hookFunc = func;
+	std::replace(procName.begin(), procName.end(), '_', ' ');
+	callProcHooks[procName] = info;
+}
+
+void BYOND::Variables::HookProc(std::string procName, CallProcHookFunction* func)
+{
+	ProcHookFilter filter{ ProcHookFilterType::None, ObjectType::Null, 0 };
+	HookProc(procName, func, filter);
+}
+
+void BYOND::Variables::HookProc(std::string procName, CallProcHookFunction* func, ObjectType type)
+{
+	ProcHookFilter filter{ ProcHookFilterType::Type, type, 0 };
+	HookProc(procName, func, filter);
+}
+
+void BYOND::Variables::HookProc(std::string procName, CallProcHookFunction* func, ObjectType type, int value)
+{
+	ProcHookFilter filter{ ProcHookFilterType::Object, type, reinterpret_cast<void*>(value) };
+	HookProc(procName, func, filter);
+}
+
+void BYOND::Variables::HookProc(std::string procName, CallProcHookFunction* func, ObjectType type, float value)
+{
+	ProcHookFilter filter{ ProcHookFilterType::Object, type, *reinterpret_cast<void**>(&value) };
+	HookProc(procName, func, filter);
+}
+
+void BYOND::Variables::UnhookProc(std::string procName)
+{
+	callProcHooks.erase(procName);
 }
 
 bool BYOND::Variables::GetFunctionPointers()

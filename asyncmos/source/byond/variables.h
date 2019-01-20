@@ -66,12 +66,40 @@ namespace BYOND
 
 		struct CallProcHookInfo
 		{
-			std::vector<Object> args;
+			Object* args;
+			int numArgs;
 			BYOND::Object returnValue;
 		};
 
+		enum class ProcHookFilterType
+		{
+			None, Type, Object
+		};
+
+		struct ProcHookFilter
+		{
+			ProcHookFilterType type;
+			ObjectType objType;
+			void* objValue;
+		};
+
 		typedef bool(__cdecl CallProcHookFunction)(CallProcHookInfo* procInfo);
-		std::map<std::string, CallProcHookFunction*> callProcHooks;
+
+		struct InternalCallProcHookInfo
+		{
+			ProcHookFilter filter;
+			CallProcHookFunction* hookFunc;
+		};
+
+		std::map<std::string, InternalCallProcHookInfo> callProcHooks;
+
+		void HookProc(std::string procName, CallProcHookFunction* func, ProcHookFilter filter);
+		void HookProc(std::string procName, CallProcHookFunction* func, ObjectType type);
+		void HookProc(std::string procName, CallProcHookFunction* func, ObjectType type, int value);
+		void HookProc(std::string procName, CallProcHookFunction* func, ObjectType type, float value);
+		void HookProc(std::string procName, CallProcHookFunction* func);
+
+		void UnhookProc(std::string procName);
 
 	public:
 		static ::std::recursive_mutex callproc_mutex;

@@ -84,6 +84,13 @@ void test_object(std::string objType, BYOND::VariableType expectedVariableType)
 
 }
 
+bool datum_test_hook(BYOND::Variables::CallProcHookInfo* info)
+{
+	MessageBoxA(NULL, "rewriting argument to \"Hello, world!\"", "no way", NULL);
+	*(info->args) = BYOND::Object("Hello, world!");
+	return true;
+}
+
 void perform_tests()
 {
 	assert(vars.ReadGlobalVariable("global_variable_string").AsString() == "global variable of type string");
