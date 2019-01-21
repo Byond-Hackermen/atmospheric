@@ -1,14 +1,16 @@
 #pragma once
-#define MOLES			0
-#define ARCHIVE			1
-#define GAS_META		2
-#define META_GAS_SPECIFIC_HEAT	0
-#define META_GAS_NAME			1
-#define META_GAS_MOLES_VISIBLE	2
-#define META_GAS_OVERLAY		3
-#define META_GAS_DANGER			5
-#define META_GAS_ID				5
-#define META_GAS_FUSION_POWER   6
+
+#define MOLES			1-1
+#define ARCHIVE			2-1
+#define GAS_META		3-1
+#define META_GAS_SPECIFIC_HEAT	1-1
+#define META_GAS_NAME			2-1
+#define META_GAS_MOLES_VISIBLE	3-1
+#define META_GAS_OVERLAY		4-1
+#define META_GAS_DANGER			5-1
+#define META_GAS_ID				6-1
+#define META_GAS_FUSION_POWER   7-1 //lists
+
 //ATMOS
 //stuff you should probably leave well alone!
 #define R_IDEAL_GAS_EQUATION	8.31	//kPa*L/(K*mol)
