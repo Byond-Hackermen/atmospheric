@@ -1,6 +1,17 @@
 #include "object_types.h"
 #include "variables.h"
 
+BYOND::DatumObject::DatumObject(struct temporary_return_value_holder ret)
+{
+	this->type = ret.type;
+	this->value = ret.value;
+}
+
+BYOND::DatumObject::DatumObject(ObjectType type, int value)
+{
+	this->type = static_cast<VariableType>(type);
+	this->value = reinterpret_cast<void*>(value);
+}
 
 void BYOND::DatumObject::Set(std::string varName, VariableType varType, unsigned int new_value) const
 {

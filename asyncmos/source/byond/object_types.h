@@ -11,6 +11,10 @@ namespace BYOND
 	class DatumObject : public BYOND::Object
 	{
 	public:
+		DatumObject() = default;
+		DatumObject(struct temporary_return_value_holder ret);
+		DatumObject(ObjectType type, int value);
+
 		void Set(std::string varName, VariableType varType, unsigned int new_value) const;
 		void Set(std::string varName, std::string new_value) const;
 		void Set(std::string varName, VariableType varType, float new_value) const;

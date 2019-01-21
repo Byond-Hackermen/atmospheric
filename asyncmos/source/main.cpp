@@ -10,6 +10,7 @@
 #include "byond/variables.h"
 #include "byond/list.h"
 #include "byond/object_types.h"
+#include "Atmospherics/atmospherics.h"
 
 #define msg(x, y) MessageBoxA(nullptr, x, y, MB_OK)
 
@@ -34,6 +35,20 @@ BYOND_EXPORT(init)
 	return nullptr;
 }
 
+BYOND::Mob ayylmao;
+
+bool sprechen(BYOND::Variables::CallProcHookInfo* info)
+{
+	ayylmao.Call("say", { BYOND::Object("Hello, world!") });
+	return true;
+}
+
+bool process_cell(BYOND::Variables::CallProcHookInfo* info)
+{
+	Atmospherics::ProcessCell(true, vars.ReadGlobalVariable("SSair").As(BYOND::Datum).Get<float>("times_fired"), info->src.As(BYOND::Turf));
+	return true;
+}
+
 void process_thread()
 {
 	auto mobs = vars.ReadGlobalVariable("mob_list").AsList();
@@ -43,15 +58,12 @@ void process_thread()
 		auto m = mobs[i]->As(BYOND::Mob);
 		if(m.Get<std::string>("name") == "Francesca Owens")
 		{
-			me = m;
+			ayylmao = m;
 			break;
 		}
 	}
-	while(true)
-	{
-		me.Call("say", { BYOND::Object("Hello, world!") });
-		Sleep(250);
-	}
+	vars.HookProc("Life", sprechen, BYOND::ObjectType::Mob, reinterpret_cast<int>(ayylmao.value));
+	vars.HookProc("process_cell", process_cell, BYOND::ObjectType::Turf);
 }
 
 BYOND_EXPORT(process)
@@ -112,6 +124,10 @@ void perform_tests()
 
 	BYOND::Object argument(static_cast<float>(5));
 	assert(vars.CallGlobalProc("/proc/global_proc_1", { argument }).AsNumber() == static_cast<float>(5));
+
+	BYOND::Datum newdatum = vars.New("/datum/datum_type_2").As(BYOND::Datum);
+	assert(newdatum.Get<std::string>("name") == "datum of type 2");
+	
 	//*list[0] = BYOND::Object(BYOND::VariableType::String, BYONDSTR("Adding new string to the string table!"));
 	//assert(list[0]->AsString() == "Adding new string to the string table!");
 }
@@ -123,7 +139,7 @@ BYOND_EXPORT(test)
 		msg("test() called before initializing library!", "Error!");
 		return nullptr;
 	}
-	std::thread t(perform_tests);
+	std::thread t(process_thread);
 	t.detach();
 
 	return nullptr;

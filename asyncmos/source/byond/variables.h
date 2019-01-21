@@ -4,12 +4,14 @@
 #include <vector>
 #include "byond.h"
 #include "object.h"
+#include "object_types.h"
 #include "bstring.h"
 #include <easyhook.h>
 #include <mutex>
 
 namespace BYOND
 {
+	class DatumObject;
 	class List;
 	struct ByondList;
 	struct CallProcHookInfo;
@@ -37,6 +39,9 @@ namespace BYOND
 		BYOND::Object CallObjectProc(BYOND::Object, std::string procName, std::vector<BYOND::Object> arguments);
 		BYOND::Object CallGlobalProc(std::string procName);
 		BYOND::Object CallGlobalProc(std::string procName, std::vector<Object> arguments);
+
+		BYOND::DatumObject New(std::string type, BYOND::DatumObject loc);
+		BYOND::DatumObject New(std::string type);
 
 		std::string GetStringFromId(unsigned int id) const;
 		List GetListFromId(unsigned int id) const;
@@ -69,6 +74,7 @@ namespace BYOND
 			Object* args;
 			int numArgs;
 			BYOND::Object returnValue;
+			BYOND::DatumObject src;
 		};
 
 		enum class ProcHookFilterType
@@ -142,6 +148,9 @@ namespace BYOND
 
 		typedef temporary_return_value_holder(__cdecl CallGlobalProcPtr)(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, Object* argList, int argListLen, int const_0_2, int const_0_3);
 		static CallGlobalProcPtr* callGlobalProc;
+
+		typedef temporary_return_value_holder(__cdecl CreateNewDatumObjectPtr)(BYOND::Object* typeAsString, BYOND::DatumObject* loc);
+		static CreateNewDatumObjectPtr* createNewDatumObject;
 	};
 }
 extern BYOND::Variables vars;

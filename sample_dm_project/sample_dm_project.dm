@@ -50,6 +50,9 @@
 /mob/mob_type_2
 	name = "mob of type 2"
 
+/mob/mob_type_2/New()
+	world << "Hello world from mob type 2"
+
 /datum/datum_type_1
 	var/name = "datum of type 1"
 	var/datum_variable_number = 5
@@ -58,6 +61,9 @@
 
 /datum/datum_type_2
 	var/name = "datum of type 2"
+
+/datum/datum_type_2/New()
+	world << "Hello, world from datum!"
 
 /datum/datum_type_1/proc/datum_test_proc(arg)
 	world << "Datum test successful! Argument: [arg]"
@@ -115,3 +121,7 @@ var/unimportant_var = "nothing"
 /client/verb/dynamic_proccall()
 	var/name = input("proc name") as text
 	call(name)()
+
+/client/verb/new_thing()
+	var/lmao = "/mob/mob_type_2"
+	new lmao(global_variable_mob)

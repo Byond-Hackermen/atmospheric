@@ -1,4 +1,5 @@
 #include "variables.h"
+#include "object_types.h"
 
 #include <windows.h>
 #include <psapi.h>
@@ -24,6 +25,7 @@ BYOND::Variables::GetContainerItemPtr*			BYOND::Variables::getContainerItem = nu
 BYOND::Variables::GetStringTableIndexPtr*		BYOND::Variables::getStringTableIndex = nullptr;
 BYOND::Variables::Text2PathPtr*					BYOND::Variables::text2path = nullptr;
 BYOND::Variables::CallGlobalProcPtr*			BYOND::Variables::callGlobalProc = nullptr;
+BYOND::Variables::CreateNewDatumObjectPtr*		BYOND::Variables::createNewDatumObject = nullptr;
 
 BYOND::Object BYOND::Variables::world;
 std::recursive_mutex BYOND::Variables::callglobalproc_mutex;
@@ -45,6 +47,8 @@ bool BYOND::Variables::Initialize()
 
 	world = BYOND::Object(BYOND::VariableType::World, 0);
 	init_done = true;
+
+	MessageBoxA(NULL, getStringPointerFromId(0x1C0)->stringData, "wew", NULL);
 
 	return true;
 }
@@ -128,6 +132,7 @@ BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, BYOND::Pro
 		BYOND::Variables::CallProcHookInfo info;
 		info.args = argList;
 		info.numArgs = argListLen;
+		info.src = BYOND::DatumObject(datumType, datumId);
 		if(!internal_info.hookFunc(&info))
 		{
 			BYOND::temporary_return_value_holder trvh;
@@ -213,7 +218,6 @@ bool BYOND::Variables::GetFunctionPointers()
 		return false;
 	}
 
-	  
 	if (!Pocket::GetFunction<GetVariablePtr*>(getVariable, rangeStart, miModInfo.SizeOfImage, "55 8B EC 8B 4D 08 0F B6 C1 48 83 F8 53 0F 87 ?? ?? ?? ?? 0F B6 80 ?? ?? ?? ?? FF 24 85 ?? ?? ?? ?? FF 75 10"))
 	{
 		MessageBoxA(nullptr, "Failed to acquire getVariable", "oh no!", 0);
@@ -280,6 +284,13 @@ bool BYOND::Variables::GetFunctionPointers()
 		return false;
 	}
 
+	if (!Pocket::GetFunction<CreateNewDatumObjectPtr*>(createNewDatumObject, rangeStart, miModInfo.SizeOfImage, "55 8B EC 83 EC 20 80 3D ?? ?? ?? ?? 00 A1 ?? ?? ?? ?? 56 57 8B 00 8B 48 08 8B 40 0C 89 4D FC 89 45 F8 74 38 8B 4D 08 8B 15 ?? ?? ?? ?? 8B 35 ?? ?? ?? ?? 8B 41 04 8B 39 50 57 89 11 89 71 04"))
+	{
+		MessageBoxA(nullptr, "Failed to acquire createNewDatumObject", "oh no!", 0);
+		return false;
+	}
+
+	
 	// One of these is right (maybe), not needed as of now.
 	//mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
 	//mob_list = Pocket::Sigscan::FindPattern(rangeStart, miModInfo.SizeOfImage, "A1 ?? ?? ?? ?? 8B 04 B0 85 C0 74 34 FF B0", 1);
@@ -335,6 +346,17 @@ BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName,
 BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName)
 {
 	return CallObjectProc(obj, procName, std::vector<Object>());
+}
+
+BYOND::DatumObject BYOND::Variables::New(std::string type, BYOND::DatumObject loc)
+{
+	BYOND::Object otype(type);
+	return BYOND::DatumObject(createNewDatumObject(&otype, &loc));
+}
+
+BYOND::DatumObject BYOND::Variables::New(std::string type)
+{
+	return New(type, BYOND::DatumObject(ObjectType::Null, 0));
 }
 
 std::string BYOND::Variables::GetStringFromId(unsigned int id) const

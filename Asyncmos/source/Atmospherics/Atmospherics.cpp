@@ -13,20 +13,6 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 namespace Atmospherics {
-	enum Defines
-	{
-		MOLES = 1,
-		ARCHIVE = 2,
-		GAS_META = 3,
-
-		META_GAS_SPECIFIC_HEAT = 1,
-		META_GAS_NAME = 2,
-		META_GAS_MOLES_VISIBLE = 3,
-		META_GAS_OVERLAY = 4,
-		META_GAS_DANGER = 5,
-		META_GAS_ID = 6,
-		META_GAS_FUSION_POWER = 7,
-	};
 
 	void archive_mixture(BYOND::Datum mixture)
 	{
@@ -197,7 +183,7 @@ namespace Atmospherics {
 	if((!our_excited_group && !(our_air.temperature > MINIMUM_TEMPERATURE_START_SUPERCONDUCTION && consider_superconductivity(starting = TRUE))) \
 	|| (cached_atmos_cooldown > (EXCITED_GROUP_DISMANTLE_CYCLES * 2)))
 		SSair.remove_from_active(src)*/
-			if ((ourExcitedGroup.type == BYOND::VariableType::Null && !(ourAir.Get<float>("temperature") > MINIMUM_TEMPERATURE_START_SUPERCONDUCTION) && pTurf.Call("consider_superconductivity", { BYOND::Object(true) })) || (cachedAtmosCooldown > (EXCITED_GROUP_DISMANTLE_CYCLES * 2)))
+			if ((ourExcitedGroup.type == BYOND::VariableType::Null && !(ourAir.Get<float>("temperature") > MINIMUM_TEMPERATURE_START_SUPERCONDUCTION) && pTurf.Call("consider_superconductivity", { BYOND::Object(true) }).AsNumber()) || (cachedAtmosCooldown > (EXCITED_GROUP_DISMANTLE_CYCLES * 2)))
 				SSair.Call("remove_from_active", { pTurf });
 			pTurf.Set("atmos_cooldown", BYOND::VariableType::Number, cachedAtmosCooldown);
 		}
