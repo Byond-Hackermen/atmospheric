@@ -80,7 +80,6 @@ namespace Atmospherics {
 			}
 			archive_turf(enemyTile);
 			bool shouldShareAir = false;
-			//pTurf.Set("should_share_air", BYOND::VariableType::Number, static_cast<float>(0));
 
 			/*if(our_excited_group && enemy_excited_group)
 				if(our_excited_group != enemy_excited_group)
@@ -95,7 +94,6 @@ namespace Atmospherics {
 				{
 					ourExcitedGroup.Call("merge_groups", { enemyExcitedGroup });
 					ourExcitedGroup = pTurf.Get<BYOND::Datum>("excited_group");
-					//pTurf.Set("should_share_air", BYOND::VariableType::Number, (float)1);
 					shouldShareAir = true;
 				}
 			}
@@ -130,8 +128,6 @@ namespace Atmospherics {
 				}
 				ourExcitedGroup = pTurf.Get<BYOND::Datum>("excited_group");
 				shouldShareAir = true;
-				//pTurf.Set("should_share_air", BYOND::VariableType::Number, (float)1);
-
 			}
 			if (shouldShareAir) {
 				BYOND::Object differenceObj = ourAir.Call("share", { enemyAir, adjacentTurfsLength });
