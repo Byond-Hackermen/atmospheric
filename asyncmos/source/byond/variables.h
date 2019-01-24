@@ -149,8 +149,9 @@ namespace BYOND
 		typedef temporary_return_value_holder(__cdecl CallGlobalProcPtr)(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, Object* argList, int argListLen, int const_0_2, int const_0_3);
 		static CallGlobalProcPtr* callGlobalProc;
 
-		typedef temporary_return_value_holder(__cdecl CreateNewDatumObjectPtr)(BYOND::Object* typeAsString, BYOND::DatumObject* loc);
+		typedef temporary_return_value_holder(__cdecl CreateNewDatumObjectPtr)(BYOND::Object* typeAsString, BYOND::DatumObject* loc, int const_0, int const_0_1);
 		static CreateNewDatumObjectPtr* createNewDatumObject;
+
 	};
 }
 extern BYOND::Variables vars;

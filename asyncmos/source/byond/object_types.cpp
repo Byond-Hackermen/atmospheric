@@ -43,6 +43,12 @@ BYOND::Object BYOND::DatumObject::Call(std::string procName) const
 	return vars.CallObjectProc(*this, procName);
 }
 
+/*BYOND::Datum BYOND::DatumObject::NewDatum(std::string textpath)
+{
+	BYOND::Object path = vars.Text2Path(textpath);
+	return BYOND::Object(vars.createNewDatum(3, 1, reinterpret_cast<int>(path.value), 0xffff)).As(BYOND::Datum);
+}*/
+
 std::vector<std::string> BYOND::DatumObject::GetVariableNames() const
 {
 	BYOND::List varnames = Get<BYOND::List>("vars");

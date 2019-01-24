@@ -348,10 +348,36 @@ BYOND::Object BYOND::Variables::CallObjectProc(Object obj, std::string procName)
 	return CallObjectProc(obj, procName, std::vector<Object>());
 }
 
+struct UnknownContextElement
+{
+	int unk1;
+	int unk2;
+	int someType;
+	int someValue;
+	char some_writable_memory[90];
+};
+
+struct Context
+{
+	UnknownContextElement* uce;
+	char some_writable_memory[90];
+};
+
 BYOND::DatumObject BYOND::Variables::New(std::string type, BYOND::DatumObject loc)
 {
-	BYOND::Object otype(type);
-	return BYOND::DatumObject(createNewDatumObject(&otype, &loc));
+	BYOND::Object* otype = new BYOND::Object(type);
+	Context* ctx = new Context();
+	ctx->uce = new UnknownContextElement();
+	ctx->uce->someType = 3;
+	ctx->uce->someValue = 1;
+	*(Context**)*(int*)((char*)createNewDatumObject + 14) = ctx;
+	//MessageBoxA(NULL, Pocket::IntegerToStrHex(cursed_variable).c_str(), "help me", NULL);
+	createNewDatumObject(otype, &loc, 0, 0);
+	BYOND::DatumObject result(static_cast<ObjectType>(otype->type), reinterpret_cast<int>(otype->value));
+	delete ctx->uce;
+	delete ctx;
+	delete otype;
+	return result;
 }
 
 BYOND::DatumObject BYOND::Variables::New(std::string type)

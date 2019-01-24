@@ -53,6 +53,9 @@
 /mob/mob_type_2/New()
 	world << "Hello world from mob type 2"
 
+/mob/mob_type_2/proc/(test)
+	world << test
+
 /datum/datum_type_1
 	var/name = "datum of type 1"
 	var/datum_variable_number = 5
@@ -122,6 +125,13 @@ var/unimportant_var = "nothing"
 	var/name = input("proc name") as text
 	call(name)()
 
-/client/verb/new_thing()
+/client/verb/new_mob()
 	var/lmao = "/mob/mob_type_2"
 	new lmao(global_variable_mob)
+
+/client/verb/new_datum()
+	var/lmao = "/datum/datum_type_2"
+	new lmao
+
+/client/verb/call_strange_proc()
+	new /mob/mob_type_2

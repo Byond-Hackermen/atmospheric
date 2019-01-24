@@ -16,11 +16,11 @@ namespace Atmospherics {
 
 	void archive_mixture(BYOND::Datum mixture)
 	{
-		mixture.Set("archived_temperature", BYOND::VariableType::Number, mixture.Get<float>("temperature"));
+		mixture.Set("temperature_archived", BYOND::VariableType::Number, mixture.Get<float>("temperature"));
 		auto gases = mixture.Get<BYOND::List>("gases");
 		for (int i = 0; i < gases.Length(); i++)
 		{
-			*gases[i]->AsList()[ARCHIVE] = gases[i]->AsList()[MOLES]->AsNumber();
+			*(gases[i]->AsList()[ARCHIVE]) = gases[i]->AsList()[MOLES]->AsNumber();
 		}
 	}
 
@@ -28,7 +28,7 @@ namespace Atmospherics {
 	{
 		archive_mixture(turf.Get<BYOND::Datum>("air"));
 		turf.Set("archived_cycle", BYOND::VariableType::Number, vars.ReadGlobalVariable("SSair").As(BYOND::DatumObject).Get<float>("times_fired"));
-		turf.Set("archived_temperature", BYOND::VariableType::Number, turf.Get<float>("temperature"));
+		turf.Set("temperature_archived", BYOND::VariableType::Number, turf.Get<float>("temperature"));
 	}
 	void inline LastShareCheck(float LastShare, BYOND::DatumObject pTurf, float* CachedAtmosCooldown) {
 		/*#define LAST_SHARE_CHECK \
@@ -80,7 +80,7 @@ namespace Atmospherics {
 			}
 			archive_turf(enemyTile);
 			bool shouldShareAir = false;
-			pTurf.Set("should_share_air", BYOND::VariableType::Number, (float)0);
+			//pTurf.Set("should_share_air", BYOND::VariableType::Number, static_cast<float>(0));
 
 			/*if(our_excited_group && enemy_excited_group)
 				if(our_excited_group != enemy_excited_group)
@@ -95,7 +95,7 @@ namespace Atmospherics {
 				{
 					ourExcitedGroup.Call("merge_groups", { enemyExcitedGroup });
 					ourExcitedGroup = pTurf.Get<BYOND::Datum>("excited_group");
-					pTurf.Set("should_share_air", BYOND::VariableType::Number, (float)1);
+					//pTurf.Set("should_share_air", BYOND::VariableType::Number, (float)1);
 					shouldShareAir = true;
 				}
 			}
@@ -110,7 +110,7 @@ namespace Atmospherics {
 							EG.add_turf(enemy_tile)
 						our_excited_group = excited_group
 						should_share_air = TRUE*/
-			else if (ourAir.Call("compare").AsNumber()) {
+			else if (ourAir.Call("compare", { enemyAir} ).AsNumber()) {
 				if (!enemyTile.GetVariable("excited").AsNumber()) {
 					SSair.Call("add_to_active", { enemyTile });
 				}
@@ -130,7 +130,7 @@ namespace Atmospherics {
 				}
 				ourExcitedGroup = pTurf.Get<BYOND::Datum>("excited_group");
 				shouldShareAir = true;
-				pTurf.Set("should_share_air", BYOND::VariableType::Number, (float)1);
+				//pTurf.Set("should_share_air", BYOND::VariableType::Number, (float)1);
 
 			}
 			if (shouldShareAir) {

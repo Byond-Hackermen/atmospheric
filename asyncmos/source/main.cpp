@@ -139,7 +139,7 @@ BYOND_EXPORT(test)
 		msg("test() called before initializing library!", "Error!");
 		return nullptr;
 	}
-	std::thread t(process_thread);
+	std::thread t(perform_tests);
 	t.detach();
 
 	return nullptr;

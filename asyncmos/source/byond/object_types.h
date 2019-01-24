@@ -7,6 +7,7 @@
 namespace BYOND
 {
 	class VariableAccessProxy;
+	class Datum;
 
 	class DatumObject : public BYOND::Object
 	{
@@ -45,6 +46,9 @@ namespace BYOND
 
 		BYOND::Object Call(std::string procName, std::vector<Object> args) const;
 		BYOND::Object Call(std::string procName) const;
+
+		//static BYOND::Datum NewDatum(std::string textpath, BYOND::DatumObject loc);
+		//static BYOND::Datum NewDatum(std::string textpath);
 
 		VariableAccessProxy& operator[](std::string varName);
 	};
