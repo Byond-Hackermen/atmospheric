@@ -123,6 +123,7 @@ namespace Atmospherics {
 				}
 				else {
 					//FUCK NEW OBJECT
+					EG = &vars.New("/datum/excited_group/excited_group").As(BYOND::DatumObject);
 					EG->Call("add_turf", { pTurf });
 					EG->Call("add_turf", { enemyTile });
 				}
@@ -159,12 +160,12 @@ namespace Atmospherics {
 
 	our_air.react(src)*/
 			if (planetaryAtmos) {
-				BYOND::Datum* newGasMixture; // = BYOND::NewDatum()
+				BYOND::Datum* newGasMixture = &vars.New("/datum/gas_mixture").As(BYOND::Datum); // = BYOND::NewDatum()
 				newGasMixture->Call("copy_from_turf", { pTurf });
 				newGasMixture->Call("archive");
 				if (ourAir.Call("compare", { *newGasMixture }).AsNumber()) {
 					if (ourExcitedGroup.type == BYOND::VariableType::Null) {
-						BYOND::Datum* newExcitedGroup; // = new BYOND::NewDatum()
+						BYOND::Datum* newExcitedGroup = &vars.New("/datum/excited_group").As(BYOND::Datum);
 						newExcitedGroup->Call("add_turf", { pTurf });
 						ourExcitedGroup = *newExcitedGroup;
 					}
