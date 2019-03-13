@@ -160,8 +160,14 @@ namespace Atmospherics {
 				}
 				else {
 					//FUCK NEW OBJECT
+<<<<<<< HEAD
 					excited_group_add_turf(EG, pTurf);
 					excited_group_add_turf(EG, enemyTile);
+=======
+					EG = &vars.New("/datum/excited_group/excited_group").As(BYOND::DatumObject);
+					EG->Call("add_turf", { pTurf });
+					EG->Call("add_turf", { enemyTile });
+>>>>>>> 0401b4884c70c5099cd4bd4b1fcef090a189b6b6
 				}
 				ourExcitedGroup = pTurf.Get<BYOND::Datum>("excited_group");
 				shouldShareAir = true;
@@ -201,7 +207,7 @@ namespace Atmospherics {
 				newGasMixture.Call("copy_from_turf", { pTurf });
 				archive_mixture(newGasMixture);
 				if (ourAir.Call("compare", { newGasMixture }).AsNumber()) {
-					if (ourExcitedGroup) {
+					if (!ourExcitedGroup) {
 						BYOND::Datum newExcitedGroup = vars.New("/datum/excited_group").As(BYOND::Datum);
 						newExcitedGroup.Call("add_turf", { pTurf });
 						ourExcitedGroup = newExcitedGroup;
