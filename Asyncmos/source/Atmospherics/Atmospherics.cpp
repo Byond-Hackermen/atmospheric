@@ -20,7 +20,12 @@ namespace Atmospherics {
 		auto gases = mixture.Get<BYOND::List>("gases");
 		for (int i = 0; i < gases.Length(); i++)
 		{
-			*(gases[i]->AsList()[ARCHIVE]) = gases[i]->AsList()[MOLES]->AsNumber();
+			//gases[i]->AsList()[MOLES]->AsNumber();
+			BYOND::Object* asd = gases[i]->AsList()[ARCHIVE];
+			if(asd != NULL)
+			{
+				asd->value = 0;
+			}
 		}
 	}
 
@@ -30,6 +35,38 @@ namespace Atmospherics {
 		turf.Set("archived_cycle", BYOND::VariableType::Number, vars.ReadGlobalVariable("SSair").As(BYOND::DatumObject).Get<float>("times_fired"));
 		turf.Set("temperature_archived", BYOND::VariableType::Number, turf.Get<float>("temperature"));
 	}
+
+	void excited_group_reset_cooldowns(BYOND::Datum excited_group)
+	{
+		excited_group.Set("breakdown_cooldown", BYOND::VariableType::Number, static_cast<float>(0));
+		excited_group.Set("dismantle_cooldown", BYOND::VariableType::Number, static_cast<float>(0));
+	}
+
+	void excited_group_add_turf(BYOND::Datum excited_group, BYOND::Turf turf)
+	{
+		excited_group.Get<BYOND::List>("turf_list").Append(turf.Type(), reinterpret_cast<int>(turf.value));
+		turf.Set("excited_group", excited_group.Type(), reinterpret_cast<unsigned int>(excited_group.value));
+		excited_group_reset_cooldowns(excited_group);
+	}
+
+	void excited_group_merge_groups(BYOND::Datum excited_group, BYOND::Datum other_group)
+	{
+		BYOND::Datum SSair = vars.ReadGlobalVariable("SSair").As(BYOND::Datum);
+		if(excited_group.Get<BYOND::List>("turf_list").Length() > other_group.Get<BYOND::List>("turf_list").Length())
+		{
+			SSair.Get<BYOND::List>("excited_groups").Remove(other_group.Type(), (int)other_group.value);
+			
+		}
+	}
+
+	void ssair_add_to_active_simple(BYOND::Turf turf)
+	{
+		BYOND::Datum SSair = vars.ReadGlobalVariable("SSair").As(BYOND::Datum);
+		turf.Set("excited", BYOND::VariableType::Number, (float)1);
+		SSair.Get<BYOND::List>("active_turfs").Append(turf.Type(), (int)turf.value);
+		//TODO: unfinished
+	}
+
 	void inline LastShareCheck(float LastShare, BYOND::DatumObject pTurf, float* CachedAtmosCooldown) {
 		/*#define LAST_SHARE_CHECK \
 	var/last_share = our_air.last_share;\
@@ -40,9 +77,9 @@ namespace Atmospherics {
 		our_excited_group.dismantle_cooldown = 0;\
 		cached_atmos_cooldown = 0;\
 	}*/
-		BYOND::DatumObject ourExcitedGroup = pTurf.Get<BYOND::DatumObject>("our_excited_group");
+		BYOND::Datum ourExcitedGroup = pTurf.Get<BYOND::DatumObject>("our_excited_group").As(BYOND::Datum);
 		if (LastShare > MINIMUM_AIR_TO_SUSPEND) {
-			ourExcitedGroup.Call("reset_cooldowns");
+			excited_group_reset_cooldowns(ourExcitedGroup);
 			*CachedAtmosCooldown = 0;
 		}
 		else if (LastShare > MINIMUM_MOLES_DELTA_TO_MOVE) {
@@ -89,7 +126,7 @@ namespace Atmospherics {
 				  should_share_air = TRUE*/
 			BYOND::Datum enemyAir = enemyTile.Get<BYOND::Datum>("air");
 			BYOND::Datum enemyExcitedGroup = enemyTile.Get<BYOND::Datum>("excited_group");
-			if (ourExcitedGroup.type != BYOND::VariableType::Null && enemyExcitedGroup.type != BYOND::VariableType::Null) {
+			if (ourExcitedGroup && enemyExcitedGroup) {
 				if (enemyExcitedGroup != ourExcitedGroup)
 				{
 					ourExcitedGroup.Call("merge_groups", { enemyExcitedGroup });
@@ -110,29 +147,30 @@ namespace Atmospherics {
 						should_share_air = TRUE*/
 			else if (ourAir.Call("compare", { enemyAir} ).AsNumber()) {
 				if (!enemyTile.GetVariable("excited").AsNumber()) {
-					SSair.Call("add_to_active", { enemyTile });
+					ssair_add_to_active_simple(enemyTile);
 				}
-				BYOND::DatumObject* EG;
-				if (ourExcitedGroup.type != BYOND::VariableType::Null) {
-					EG = &ourExcitedGroup;
-					EG->Call("add_turf", { enemyTile });
+				BYOND::Datum EG;
+				if (ourExcitedGroup) {
+					EG = ourExcitedGroup;
+					excited_group_add_turf(EG, pTurf);
 				}
-				else if (enemyExcitedGroup.type != BYOND::VariableType::Null) {
-					EG = &enemyExcitedGroup;
-					EG->Call("add_turf", { pTurf });
+				else if (enemyExcitedGroup) {
+					EG = enemyExcitedGroup;
+					excited_group_add_turf(EG, pTurf);
 				}
 				else {
 					//FUCK NEW OBJECT
-					EG->Call("add_turf", { pTurf });
-					EG->Call("add_turf", { enemyTile });
+					excited_group_add_turf(EG, pTurf);
+					excited_group_add_turf(EG, enemyTile);
 				}
 				ourExcitedGroup = pTurf.Get<BYOND::Datum>("excited_group");
 				shouldShareAir = true;
 			}
+			shouldShareAir = false;
 			if (shouldShareAir) {
 				BYOND::Object differenceObj = ourAir.Call("share", { enemyAir, adjacentTurfsLength });
 				float difference = differenceObj.AsNumber();
-				if (differenceObj.type != BYOND::VariableType::Null) {
+				if (differenceObj) {
 					if (difference > 0) {
 						pTurf.Call("consider_pressure_difference", { enemyTile, difference });
 					}
@@ -140,7 +178,7 @@ namespace Atmospherics {
 						enemyTile.Call("consider_pressure_difference", { pTurf, -difference });
 					}
 				}
-				LastShareCheck(pTurf.GetVariable("last_share").AsNumber(), pTurf, &cachedAtmosCooldown);
+				LastShareCheck(ourAir.GetVariable("last_share").AsNumber(), pTurf, &cachedAtmosCooldown);
 			}
 
 
@@ -159,16 +197,16 @@ namespace Atmospherics {
 
 	our_air.react(src)*/
 			if (planetaryAtmos) {
-				BYOND::Datum* newGasMixture; // = BYOND::NewDatum()
-				newGasMixture->Call("copy_from_turf", { pTurf });
-				newGasMixture->Call("archive");
-				if (ourAir.Call("compare", { *newGasMixture }).AsNumber()) {
-					if (ourExcitedGroup.type == BYOND::VariableType::Null) {
-						BYOND::Datum* newExcitedGroup; // = new BYOND::NewDatum()
-						newExcitedGroup->Call("add_turf", { pTurf });
-						ourExcitedGroup = *newExcitedGroup;
+				BYOND::Datum newGasMixture = vars.New("/datum/gas_mixture").As(BYOND::Datum);
+				newGasMixture.Call("copy_from_turf", { pTurf });
+				archive_mixture(newGasMixture);
+				if (ourAir.Call("compare", { newGasMixture }).AsNumber()) {
+					if (ourExcitedGroup) {
+						BYOND::Datum newExcitedGroup = vars.New("/datum/excited_group").As(BYOND::Datum);
+						newExcitedGroup.Call("add_turf", { pTurf });
+						ourExcitedGroup = newExcitedGroup;
 					}
-					ourAir.Call("share", { *newGasMixture, BYOND::Object(adjacentTurfsLength) });
+					ourAir.Call("share", { newGasMixture, BYOND::Object(adjacentTurfsLength) });
 					LastShareCheck(pTurf.GetVariable("last_share").AsNumber(), pTurf, &cachedAtmosCooldown);
 				}
 
@@ -179,7 +217,7 @@ namespace Atmospherics {
 	if((!our_excited_group && !(our_air.temperature > MINIMUM_TEMPERATURE_START_SUPERCONDUCTION && consider_superconductivity(starting = TRUE))) \
 	|| (cached_atmos_cooldown > (EXCITED_GROUP_DISMANTLE_CYCLES * 2)))
 		SSair.remove_from_active(src)*/
-			if ((ourExcitedGroup.type == BYOND::VariableType::Null && !(ourAir.Get<float>("temperature") > MINIMUM_TEMPERATURE_START_SUPERCONDUCTION) && pTurf.Call("consider_superconductivity", { BYOND::Object(true) }).AsNumber()) || (cachedAtmosCooldown > (EXCITED_GROUP_DISMANTLE_CYCLES * 2)))
+			if ((!ourExcitedGroup && !(ourAir.Get<float>("temperature") > MINIMUM_TEMPERATURE_START_SUPERCONDUCTION) && pTurf.Call("consider_superconductivity", { BYOND::Object(true) }).AsNumber()) || (cachedAtmosCooldown > (EXCITED_GROUP_DISMANTLE_CYCLES * 2)))
 				SSair.Call("remove_from_active", { pTurf });
 			pTurf.Set("atmos_cooldown", BYOND::VariableType::Number, cachedAtmosCooldown);
 		}

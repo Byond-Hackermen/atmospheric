@@ -23,7 +23,7 @@ namespace BYOND
 		bool Initialize();
 		bool Ready() const { return init_done; }
 
-		static BYOND::Object world;
+		static BYOND::DatumObject world;
 
 	public:
 		BYOND::Object ReadVariable(BYOND::ObjectType type, int datumId, std::string varName);

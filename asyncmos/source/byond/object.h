@@ -1,6 +1,7 @@
 #pragma once
 
 #include "byond.h"
+//#include "../scripting/lua_scripting.h"
 #include <string>
 
 #define As(x) As< ## x ## &>()
@@ -17,8 +18,10 @@ namespace BYOND
 		Object(float value);
 		Object(std::string value);
 		Object(struct temporary_return_value_holder ret);
+		//Object(luabridge::LuaRef luaobj);
 		friend bool operator==(const Object& lhs, const Object& rhs);
 		friend bool operator!=(const Object& lhs, const Object& rhs);
+		operator bool() const;
 		BYOND::VariableType type;
 		void* value;
 

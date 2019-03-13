@@ -33,6 +33,12 @@ BYOND::Object::Object(struct temporary_return_value_holder ret)
 	this->value = ret.value;
 }
 
+/*BYOND::Object::Object(luabridge::LuaRef luaobj)
+{
+	this->type = ret.type;
+	this->value = ret.value;
+}*/
+
 bool BYOND::operator==(const BYOND::Object& lhs, const BYOND::Object& rhs)
 {
 	return lhs.type == rhs.type && lhs.value == rhs.value;
@@ -50,6 +56,7 @@ std::string BYOND::Object::AsString() const
 
 float BYOND::Object::AsNumber() const
 {
+	if (this == NULL) return 0;
 	return Pocket::DwordToFloat(reinterpret_cast<DWORD>(value));
 }
 
@@ -61,4 +68,8 @@ BYOND::List BYOND::Object::AsList() const
 BYOND::VariableType BYOND::Object::Type() const
 {
 	return static_cast<VariableType>(static_cast<unsigned char>(type));
+}
+
+BYOND::Object::operator bool() const {
+	return Type() != BYOND::VariableType::Null;
 }

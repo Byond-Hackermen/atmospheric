@@ -3,6 +3,7 @@
 #include "list.h"
 
 #include <vector>
+#include <lua.h>
 
 namespace BYOND
 {
@@ -23,6 +24,9 @@ namespace BYOND
 		BYOND::Object GetVariable(std::string varName) const;
 
 		std::vector<std::string> GetVariableNames() const;
+
+		int lua_getvar(lua_State* state);
+		int lua_setvar(lua_State* state);
 
 		template<typename T> T Get(std::string varName) const
 		{

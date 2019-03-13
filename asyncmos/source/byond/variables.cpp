@@ -11,6 +11,8 @@
 
 #pragma comment( lib, "psapi.lib" )
 
+#define exception(x) MessageBoxA(NULL, x, "Exception!", NULL);
+
 BYOND::Variables vars;
 
 BYOND::Variables::SetVariablePtr*				BYOND::Variables::setVariable = nullptr;
@@ -27,7 +29,7 @@ BYOND::Variables::Text2PathPtr*					BYOND::Variables::text2path = nullptr;
 BYOND::Variables::CallGlobalProcPtr*			BYOND::Variables::callGlobalProc = nullptr;
 BYOND::Variables::CreateNewDatumObjectPtr*		BYOND::Variables::createNewDatumObject = nullptr;
 
-BYOND::Object BYOND::Variables::world;
+BYOND::DatumObject BYOND::Variables::world;
 std::recursive_mutex BYOND::Variables::callglobalproc_mutex;
 std::recursive_mutex BYOND::Variables::callproc_mutex;
 
@@ -45,10 +47,10 @@ bool BYOND::Variables::Initialize()
 	if (!HookObjectProcCalls())
 		return false;
 
-	world = BYOND::Object(BYOND::VariableType::World, 0);
+	world = BYOND::DatumObject(BYOND::ObjectType::World, 0);
 	init_done = true;
 
-	MessageBoxA(NULL, getStringPointerFromId(0x1C0)->stringData, "wew", NULL);
+	//MessageBoxA(NULL, getStringPointerFromId(0x1C0)->stringData, "wew", NULL);
 
 	return true;
 }

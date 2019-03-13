@@ -11,8 +11,32 @@
 #include "byond/list.h"
 #include "byond/object_types.h"
 #include "Atmospherics/atmospherics.h"
+#include "scripting/lua_scripting.h"
+
+#include <eh.h>
 
 #define msg(x, y) MessageBoxA(nullptr, x, y, MB_OK)
+
+std::map<int, BYOND::VariableType> lua_to_byond_types = {
+	{ LUA_TSTRING, BYOND::VariableType::String },
+	{ LUA_TNUMBER, BYOND::VariableType::Number },
+	{ LUA_TNIL, BYOND::VariableType::Null },
+	{ LUA_TTABLE, BYOND::VariableType::List }
+};
+
+
+LONG WINAPI pls(LPEXCEPTION_POINTERS exc)
+{
+	//MessageBoxA(NULL, "Caught uncaught unfiltered exception", "yes", NULL);
+	return EXCEPTION_CONTINUE_EXECUTION;
+}
+
+LONG WINAPI VectoredHandler(_EXCEPTION_POINTERS *ExceptionInfo)
+{
+	//MessageBoxA(NULL, "Caught uncaught vectored exception", "yes", NULL);
+	ExceptionInfo->ContextRecord->Eip++;
+	return EXCEPTION_CONTINUE_EXECUTION;
+}
 
 void init_thread()
 {
@@ -20,6 +44,9 @@ void init_thread()
 	{
 		msg("Failed to initialize!", "heck");
 	}
+
+	SetUnhandledExceptionFilter(pls);
+	AddVectoredExceptionHandler(0, VectoredHandler);
 
 	//vars.CallGlobalProc("/proc/to_chat", { BYOND::Variables::world, BYOND::Object("Asyncmos initialized!") });
 }
@@ -35,11 +62,22 @@ BYOND_EXPORT(init)
 	return nullptr;
 }
 
+BYOND_EXPORT(run_lua_script)
+{
+	if (!vars.Ready())
+		return "Vars not initialized!";
+
+	std::thread t(run_script);
+	t.detach();
+
+	return nullptr;
+}
+
 BYOND::Mob ayylmao;
 
 bool sprechen(BYOND::Variables::CallProcHookInfo* info)
 {
-	ayylmao.Call("say", { BYOND::Object("Hello, world!") });
+	info->src.Call("say", { BYOND::Object("Hello, world!") });
 	return true;
 }
 
@@ -62,8 +100,20 @@ void process_thread()
 			break;
 		}
 	}
-	vars.HookProc("Life", sprechen, BYOND::ObjectType::Mob, reinterpret_cast<int>(ayylmao.value));
-	vars.HookProc("process_cell", process_cell, BYOND::ObjectType::Turf);
+	auto start = std::chrono::high_resolution_clock::now();
+	for (int x = 0; x < 100000; x++)
+	{
+		if (ayylmao.Get<float>("health") != 100)
+		{
+			MessageBoxA(NULL, "incorrect health value!", "error", NULL);
+			break;
+		}
+	}
+	auto finish = std::chrono::high_resolution_clock::now();
+	auto microseconds = std::chrono::duration_cast<std::chrono::nanoseconds>((finish - start)/100000);
+	MessageBoxA(NULL, std::to_string(microseconds.count()).c_str(), "Nanoseconds to read one var", NULL);
+	//vars.HookProc("Life", sprechen, BYOND::ObjectType::Mob);
+	//vars.HookProc("process_cell", process_cell, BYOND::ObjectType::Turf);
 }
 
 BYOND_EXPORT(process)
@@ -139,7 +189,7 @@ BYOND_EXPORT(test)
 		msg("test() called before initializing library!", "Error!");
 		return nullptr;
 	}
-	std::thread t(perform_tests);
+	std::thread t(process_thread);
 	t.detach();
 
 	return nullptr;
