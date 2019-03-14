@@ -292,6 +292,17 @@ bool BYOND::Variables::GetFunctionPointers()
 		return false;
 	}
 
+	unsigned char* false_null_location = (unsigned char*)Pocket::Sigscan::FindPattern(rangeStart, miModInfo.SizeOfImage, "83 C4 1C A1 ?? ?? ?? ?? 8B 15 ?? ?? ?? ?? 5E 8B E5 5D C3 CC", 8);
+	DWORD protec;
+	DWORD dong;
+	VirtualProtect(false_null_location, 6, PAGE_READWRITE, &protec);
+	false_null_location[0] = 0xBA; //mov edx, constant
+	false_null_location[1] = 0xEF;
+	false_null_location[2] = 0xBE;
+	false_null_location[3] = 0xAD;
+	false_null_location[4] = 0xDE;
+	false_null_location[5] = 0x90; // nop
+	VirtualProtect(false_null_location, 6, protec, &dong);
 	
 	// One of these is right (maybe), not needed as of now.
 	//mob_list = (DWORD*)**(DWORD**)(*(int*)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + (DWORD)((BYTE*)readVariable + 57 + *(int*)((BYTE*)readVariable + 40)) + 23); //OH GOD OH FUCK
@@ -426,6 +437,10 @@ unsigned int BYOND::Variables::GetByondString(std::string str)
 
 BYOND::Object BYOND::Variables::CallGlobalProc(std::string procName, std::vector<Object> arguments)
 {
+	if (procName.rfind("/proc/", 0) != 0)
+	{
+		procName = "/proc/" + procName;
+	}
 	BYOND::Object path = Text2Path(procName);
 	ULONG ACLEntries[1] = { 0 };
 	LhSetInclusiveACL(ACLEntries, 1, &globalTimerHookInfo);

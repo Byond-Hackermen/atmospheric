@@ -23,7 +23,7 @@ namespace BYOND
 
 		BYOND::Object GetVariable(std::string varName) const;
 
-		std::vector<std::string> GetVariableNames() const;
+		bool HasVariable(std::string name) const;
 
 		int lua_getvar(lua_State* state);
 		int lua_setvar(lua_State* state);

@@ -48,3 +48,8 @@ std::unique_ptr<BYOND::Object> BYOND::List::operator[](BYOND::Object why) const
 {
 	return std::make_unique<BYOND::Object>(vars.GetContainerItem(BYOND::VariableType::List, ID, why));
 }
+
+bool BYOND::List::AssocHasKey(std::string key)
+{
+	return vars.CallObjectProc(BYOND::Object(BYOND::VariableType::List, ID), "Find", { BYOND::Object(key) } ).AsNumber() > 0;
+}

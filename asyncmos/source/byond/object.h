@@ -29,6 +29,8 @@ namespace BYOND
 		float AsNumber() const;
 		BYOND::List AsList() const;
 
+		bool CheckValid() const;
+
 		#pragma push_macro("As")
 		#undef As
 		template<typename T>

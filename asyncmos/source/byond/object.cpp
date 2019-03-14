@@ -73,3 +73,8 @@ BYOND::VariableType BYOND::Object::Type() const
 BYOND::Object::operator bool() const {
 	return Type() != BYOND::VariableType::Null;
 }
+
+bool BYOND::Object::CheckValid() const
+{
+	return !(Type() == BYOND::VariableType::Null && reinterpret_cast<int>(value) == INVALID_VAR_VALUE);
+}

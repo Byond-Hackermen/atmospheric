@@ -41,5 +41,6 @@ namespace BYOND
 		void Remove(VariableType type, float value) const;
 		Object* operator[](int index) const;
 		std::unique_ptr<BYOND::Object> operator[](BYOND::Object why) const;
+		bool AssocHasKey(std::string key);
 	};
 }

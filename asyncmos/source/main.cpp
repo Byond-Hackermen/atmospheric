@@ -31,10 +31,19 @@ LONG WINAPI pls(LPEXCEPTION_POINTERS exc)
 	return EXCEPTION_CONTINUE_EXECUTION;
 }
 
+__declspec(naked) void return_immediately()
+{
+	__asm {
+		mov esp, ebp
+		pop ebp
+		ret
+		}
+}
+
 LONG WINAPI VectoredHandler(_EXCEPTION_POINTERS *ExceptionInfo)
 {
 	//MessageBoxA(NULL, "Caught uncaught vectored exception", "yes", NULL);
-	ExceptionInfo->ContextRecord->Eip++;
+	ExceptionInfo->ContextRecord->Eip = reinterpret_cast<DWORD>(return_immediately);
 	return EXCEPTION_CONTINUE_EXECUTION;
 }
 
@@ -100,7 +109,8 @@ void process_thread()
 			break;
 		}
 	}
-	auto start = std::chrono::high_resolution_clock::now();
+	MessageBoxA(NULL, std::to_string(ayylmao.Get<BYOND::List>("vars").Length()).c_str(), "length of vars", NULL);
+	/*auto start = std::chrono::high_resolution_clock::now();
 	for (int x = 0; x < 100000; x++)
 	{
 		if (ayylmao.Get<float>("health") != 100)
@@ -111,7 +121,7 @@ void process_thread()
 	}
 	auto finish = std::chrono::high_resolution_clock::now();
 	auto microseconds = std::chrono::duration_cast<std::chrono::nanoseconds>((finish - start)/100000);
-	MessageBoxA(NULL, std::to_string(microseconds.count()).c_str(), "Nanoseconds to read one var", NULL);
+	MessageBoxA(NULL, std::to_string(microseconds.count()).c_str(), "Nanoseconds to read one var", NULL);*/
 	//vars.HookProc("Life", sprechen, BYOND::ObjectType::Mob);
 	//vars.HookProc("process_cell", process_cell, BYOND::ObjectType::Turf);
 }
@@ -144,6 +154,7 @@ void test_object(std::string objType, BYOND::VariableType expectedVariableType)
 	assert(object_list_var[0]->AsString() == objType + " variable list element 1");
 	assert(object_list_var[1]->AsString() == objType + " variable list element 2");
 
+	assert(object.HasVariable("ayylmao") == false);
 }
 
 bool datum_test_hook(BYOND::Variables::CallProcHookInfo* info)
@@ -171,6 +182,7 @@ void perform_tests()
 	assert(assocList[index]->AsString() == "associative list value 1");
 	BYOND::Object index2("associative list key 2");
 	assert(assocList[index2]->AsString() == "associative list value 2");
+	assert(assocList.AssocHasKey("associative list key 1"));
 
 	BYOND::Object argument(static_cast<float>(5));
 	assert(vars.CallGlobalProc("/proc/global_proc_1", { argument }).AsNumber() == static_cast<float>(5));
@@ -189,7 +201,7 @@ BYOND_EXPORT(test)
 		msg("test() called before initializing library!", "Error!");
 		return nullptr;
 	}
-	std::thread t(process_thread);
+	std::thread t(perform_tests);
 	t.detach();
 
 	return nullptr;

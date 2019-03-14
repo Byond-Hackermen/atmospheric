@@ -3,6 +3,7 @@
 #include <string>
 
 #define BYONDSTR(x) BYOND::Variables::GetByondString(x)
+#define INVALID_VAR_VALUE 0xDEADBEEF
 
 namespace BYOND
 {
@@ -33,7 +34,7 @@ namespace BYOND
 		List		= 0x0F,
 		Datum		= 0x21,
 		Path		= 0x26,
-		Number		= 0x2A
+		Number		= 0x2A,
 	};
 
 	enum class ProcType

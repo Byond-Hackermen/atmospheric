@@ -49,15 +49,9 @@ BYOND::Object BYOND::DatumObject::Call(std::string procName) const
 	return BYOND::Object(vars.createNewDatum(3, 1, reinterpret_cast<int>(path.value), 0xffff)).As(BYOND::Datum);
 }*/
 
-std::vector<std::string> BYOND::DatumObject::GetVariableNames() const
+bool BYOND::DatumObject::HasVariable(std::string name) const
 {
-	BYOND::List varnames = Get<BYOND::List>("vars");
-	std::vector<std::string> result;
-	for(int i=0; i<varnames.Length(); i++)
-	{
-		result.push_back(varnames.At(i)->AsString());
-	}
-	return result;
+	return GetVariable(name).CheckValid();
 }
 
 BYOND::VariableAccessProxy& BYOND::DatumObject::operator[](std::string varName)

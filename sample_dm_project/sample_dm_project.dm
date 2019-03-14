@@ -51,6 +51,7 @@
 
 /mob/mob_type_2
 	name = "mob of type 2"
+	var/null_value = null
 
 /mob/mob_type_2/New()
 	world << "Hello world from mob type 2"
@@ -138,6 +139,9 @@ var/unimportant_var = "nothing"
 
 /client/verb/call_strange_proc()
 	new /mob/mob_type_2
+
+/client/verb/access_mob_vars()
+	global_variable_mob.vars["test"]
 
 /datum/port_this
 	var/honk
