@@ -2,6 +2,40 @@
 #include <luaconf.h>
 #include <fstream>
 
+void lua_push_list(BYOND::Object o, lua_State* L)
+{
+	BYOND::List list((int)o.value);
+	lua_newtable(L);
+	for (int i = 0; i < list.Length(); i++) {
+		luabridge::push(L, reinterpret_cast<BYOND::DatumObject*>(list.At(i)));
+		lua_rawseti(L, -2, i);
+	}
+}
+
+void lua_push_byond_object(BYOND::Object o, lua_State* L)
+{
+	if(!o.CheckValid())
+	{
+		luabridge::push(L, luabridge::Nil());
+		return;
+	}
+	BYOND::VariableType rtype = o.Type();
+	if (rtype == BYOND::VariableType::Number)
+		luabridge::push(L, o.AsNumber());
+	else if (rtype == BYOND::VariableType::String)
+		luabridge::push(L, o.AsString());
+	else if (rtype == BYOND::VariableType::Null)
+		luabridge::push(L, luabridge::Nil());
+	else if (rtype == BYOND::VariableType::List)
+		lua_push_list(o, L);
+	else if (rtype == BYOND::VariableType::Area ||
+		rtype == BYOND::VariableType::Turf ||
+		rtype == BYOND::VariableType::Obj ||
+		rtype == BYOND::VariableType::Mob ||
+		rtype == BYOND::VariableType::Datum)
+		luabridge::push(L, *static_cast<BYOND::DatumObject*>(&o));
+}
+
 LuaObjectProcCallProxy::LuaObjectProcCallProxy(class BYOND::DatumObject* src, std::string name)
 {
 	this->src = src;
@@ -15,7 +49,6 @@ int LuaObjectProcCallProxy::call(lua_State* L)
 	for(int i=2; i<=num_args; i++)
 	{
 		int type = lua_type(L, i);
-		;
 		if (type == LUA_TNUMBER || type == LUA_TBOOLEAN)
 			args.push_back(BYOND::Object(luabridge::Stack<float>::get(L, i)));
 		else if (type == LUA_TSTRING)
@@ -26,18 +59,33 @@ int LuaObjectProcCallProxy::call(lua_State* L)
 			args.push_back(static_cast<BYOND::Object>(luabridge::Stack<BYOND::DatumObject>::get(L, i)));
 	}
 	BYOND::Object result = src->Call(name, args);
-	BYOND::VariableType rtype = result.Type();
-	if (rtype == BYOND::VariableType::Number)
-		luabridge::push(L, result.AsNumber());
-	else if (rtype == BYOND::VariableType::String)
-		luabridge::push(L, result.AsString());
-	else if (rtype == BYOND::VariableType::Null)
-		luabridge::push(L, luabridge::Nil());
-	else if (rtype == BYOND::VariableType::Area ||
-		rtype == BYOND::VariableType::Turf ||
-		rtype == BYOND::VariableType::Obj ||
-		rtype == BYOND::VariableType::Mob)
-		luabridge::push(L, *static_cast<BYOND::DatumObject*>(&result));
+	lua_push_byond_object(result, L);
+	return 1;
+}
+
+LuaGlobalProcCallProxy::LuaGlobalProcCallProxy(std::string name)
+{
+	this->name = name;
+}
+
+int LuaGlobalProcCallProxy::call(lua_State* L)
+{
+	int num_args = lua_gettop(L);
+	std::vector<BYOND::Object> args;
+	for (int i = 2; i <= num_args; i++)
+	{
+		int type = lua_type(L, i);
+		if (type == LUA_TNUMBER || type == LUA_TBOOLEAN)
+			args.push_back(BYOND::Object(luabridge::Stack<float>::get(L, i)));
+		else if (type == LUA_TSTRING)
+			args.push_back(BYOND::Object(luabridge::Stack<std::string>::get(L, i)));
+		else if (type == LUA_TNIL)
+			args.push_back(BYOND::Object(BYOND::VariableType::Null, 0));
+		else
+			args.push_back(static_cast<BYOND::Object>(luabridge::Stack<BYOND::DatumObject>::get(L, i)));
+	}
+	BYOND::Object result = vars.CallGlobalProc(name, args);
+
 	return 1;
 }
 
@@ -74,25 +122,7 @@ int BYOND::DatumObject::lua_getvar(lua_State* state)
 		luabridge::push(state, LuaObjectProcCallProxy(this, varname));
 		return 1;
 	}
-	switch(result.Type())
-	{
-	case BYOND::VariableType::Number:
-		lua_pushnumber(state, result.AsNumber());
-		break;
-	case BYOND::VariableType::String:
-		lua_pushstring(state, result.AsString().c_str());
-		break;
-	case BYOND::VariableType::Area:
-	case BYOND::VariableType::Turf:
-	case BYOND::VariableType::Obj:
-	case BYOND::VariableType::Mob:
-		luabridge::push(state, BYOND::DatumObject(static_cast<BYOND::ObjectType>(result.Type()), (int)result.value));
-		break;
-	case BYOND::VariableType::Null:
-	default:
-		lua_pushnil(state);
-		break;
-	}
+	lua_push_byond_object(result, state);
 	return 1;
 }
 
@@ -127,9 +157,38 @@ int BYOND::DatumObject::lua_setvar(lua_State* state)
 	return 0;
 }
 
+int LuaGlobal::lua_access_global(lua_State* L)
+{
+	const char* varname = lua_tostring(L, 2);
+	BYOND::DatumObject GLOB = vars.ReadGlobalVariable("GLOB");
+	BYOND::Object result = GLOB.GetVariable(varname);
+	if(result.CheckValid())
+	{
+		lua_push_byond_object(result, L);
+	}
+	else
+	{
+		result = vars.ReadGlobalVariable(varname);
+		if(result.CheckValid())
+		{
+			lua_push_byond_object(result, L);
+		}
+		else
+		{
+			luabridge::push(L, LuaGlobalProcCallProxy(varname));
+		}
+	}
+	return 1;
+}
+
 void sleep(int milis)
 {
 	Sleep(milis);
+}
+
+void lua_to_world(std::string text)
+{
+	vars.CallGlobalProc("to_chat", { vars.world, BYOND::Object(text) });
 }
 
 using namespace luabridge;
@@ -145,11 +204,19 @@ void run_script()
 		.addCFunction("__index", &BYOND::DatumObject::lua_getvar)
 		.addCFunction("__newindex", &BYOND::DatumObject::lua_setvar)
 		.endClass()
-		.beginClass<LuaObjectProcCallProxy>("ProcCallProxy")
+		.beginClass<LuaObjectProcCallProxy>("ObjectProcCallProxy")
 		.addCFunction("__call", &LuaObjectProcCallProxy::call)
+		.endClass()
+		.beginClass<LuaGlobalProcCallProxy>("GlobalProcCallProxy")
+		.addCFunction("__call", &LuaGlobalProcCallProxy::call)
+		.endClass()
+		.beginClass<LuaGlobal>("Glob")
+		.addCFunction("__index", &LuaGlobal::lua_access_global)
 		.endClass()
 		.addFunction("mymob", getmymob)
 		.addFunction("sleep", sleep)
+		.addFunction("to_world", lua_to_world)
+		.addVariable("glob", new LuaGlobal(), false)
 		.endNamespace();
 
 	if(luaL_dofile(L, "testscript.lua") != LUA_OK)

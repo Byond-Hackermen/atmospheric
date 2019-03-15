@@ -13,6 +13,12 @@ BYOND::DatumObject::DatumObject(ObjectType type, int value)
 	this->value = reinterpret_cast<void*>(value);
 }
 
+BYOND::DatumObject::DatumObject(Object o)
+{
+	this->type = static_cast<VariableType>(o.type);
+	this->value = o.value;
+}
+
 void BYOND::DatumObject::Set(std::string varName, VariableType varType, unsigned int new_value) const
 {
 	vars.SetVariable(static_cast<ObjectType>(type), reinterpret_cast<int>(value), varName, varType, new_value);

@@ -109,7 +109,10 @@ void process_thread()
 			break;
 		}
 	}
-	MessageBoxA(NULL, std::to_string(ayylmao.Get<BYOND::List>("vars").Length()).c_str(), "length of vars", NULL);
+	BYOND::Object appearance = ayylmao.GetVariable("appearance");
+
+	MessageBoxA(NULL, std::to_string(static_cast<int>(appearance.Type())).c_str(), "appearance type", NULL);
+	MessageBoxA(NULL, std::to_string(reinterpret_cast<int>(appearance.value)).c_str(), "appearance value", NULL);
 	/*auto start = std::chrono::high_resolution_clock::now();
 	for (int x = 0; x < 100000; x++)
 	{
@@ -201,7 +204,7 @@ BYOND_EXPORT(test)
 		msg("test() called before initializing library!", "Error!");
 		return nullptr;
 	}
-	std::thread t(perform_tests);
+	std::thread t(process_thread);
 	t.detach();
 
 	return nullptr;
