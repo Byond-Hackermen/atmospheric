@@ -57,7 +57,7 @@ void init_thread()
 	SetUnhandledExceptionFilter(pls);
 	AddVectoredExceptionHandler(0, VectoredHandler);
 
-	//vars.CallGlobalProc("/proc/to_chat", { BYOND::Variables::world, BYOND::Object("Asyncmos initialized!") });
+	vars.CallGlobalProc("to_chat", { BYOND::Variables::world, BYOND::Object("Asyncmos initialized!") });
 }
 
 BYOND_EXPORT(init)
@@ -98,7 +98,19 @@ bool process_cell(BYOND::Variables::CallProcHookInfo* info)
 
 void process_thread()
 {
-	auto mobs = vars.ReadGlobalVariable("mob_list").AsList();
+	/*while (true)
+	{
+		auto machines = vars.ReadGlobalVariable("machines").AsList();
+		for (int i = 0; i < machines.Length(); i++)
+		{
+			BYOND::Obj machine = machines.At(i)->As(BYOND::Obj);
+			MessageBoxA(NULL, std::to_string(static_cast<int>(machine.Type())).c_str(), "machine type", NULL);
+			MessageBoxA(NULL, std::to_string(reinterpret_cast<int>(machine.value)).c_str(), "machine value", NULL);
+			machine.Call("process", { (float)2 });
+			Sleep(2000 / machines.Length());
+		}
+	}*/
+	/*auto mobs = vars.ReadGlobalVariable("mob_list").AsList();
 	BYOND::Mob me;
 	for(int i=0; i<mobs.Length(); i++)
 	{
@@ -112,7 +124,7 @@ void process_thread()
 	BYOND::Object appearance = ayylmao.GetVariable("appearance");
 
 	MessageBoxA(NULL, std::to_string(static_cast<int>(appearance.Type())).c_str(), "appearance type", NULL);
-	MessageBoxA(NULL, std::to_string(reinterpret_cast<int>(appearance.value)).c_str(), "appearance value", NULL);
+	MessageBoxA(NULL, std::to_string(reinterpret_cast<int>(appearance.value)).c_str(), "appearance value", NULL);*/
 	/*auto start = std::chrono::high_resolution_clock::now();
 	for (int x = 0; x < 100000; x++)
 	{

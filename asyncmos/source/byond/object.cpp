@@ -33,12 +33,6 @@ BYOND::Object::Object(struct temporary_return_value_holder ret)
 	this->value = ret.value;
 }
 
-/*BYOND::Object::Object(luabridge::LuaRef luaobj)
-{
-	this->type = ret.type;
-	this->value = ret.value;
-}*/
-
 bool BYOND::operator==(const BYOND::Object& lhs, const BYOND::Object& rhs)
 {
 	return lhs.type == rhs.type && lhs.value == rhs.value;

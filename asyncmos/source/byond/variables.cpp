@@ -410,11 +410,14 @@ BYOND::List BYOND::Variables::GetListFromId(unsigned int id) const
 
 char* BYOND::Variables::GetCStringFromId(unsigned int id) const
 {
+	//return getStringPointerFromId(id);
 	return getStringPointerFromId(id)->stringData;
 }
 
 void BYOND::Variables::IncreaseStringRefcount(unsigned int id)
 {
+	//char* string = getStringPointerFromId(id);
+	//string[-1]++;
 	getStringPointerFromId(id)->refcount++;
 }
 

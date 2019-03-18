@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <typeindex>
+#include <unordered_map>
 
 #define BYONDSTR(x) BYOND::Variables::GetByondString(x)
 #define INVALID_VAR_VALUE 0xDEADBEEF

@@ -8,10 +8,11 @@ extern "C" {
 #include "LuaBridge.h"
 
 #include "../byond/variables.h"
+#include <typeindex>
+#include <typeinfo>
+#include <unordered_map>
 
 void run_script();
-
-extern std::map<int, BYOND::VariableType> lua_to_byond_types;
 
 class LuaObjectProcCallProxy
 {
