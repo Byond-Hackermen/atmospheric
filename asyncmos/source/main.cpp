@@ -98,6 +98,8 @@ bool process_cell(BYOND::Variables::CallProcHookInfo* info)
 
 void process_thread()
 {
+	BYOND::List mobs = vars.ReadGlobalVariable("mob_list");
+	BYOND::Mob mob = *mobs.At(1);
 	/*while (true)
 	{
 		auto machines = vars.ReadGlobalVariable("machines").AsList();
@@ -202,7 +204,7 @@ void perform_tests()
 	BYOND::Object argument(static_cast<float>(5));
 	assert(vars.CallGlobalProc("/proc/global_proc_1", { argument }).AsNumber() == static_cast<float>(5));
 
-	BYOND::Datum newdatum = vars.New("/datum/datum_type_2").As(BYOND::Datum);
+	BYOND::Datum newdatum = vars.New("/datum/datum_type_2");
 	assert(newdatum.Get<std::string>("name") == "datum of type 2");
 	
 	//*list[0] = BYOND::Object(BYOND::VariableType::String, BYONDSTR("Adding new string to the string table!"));

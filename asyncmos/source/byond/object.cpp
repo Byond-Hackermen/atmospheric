@@ -2,6 +2,7 @@
 #include "list.h"
 #include "variables.h"
 #include "../pocket/utilities.h"
+#include <cassert>
 
 BYOND::Object::Object()
 {
@@ -45,17 +46,20 @@ bool BYOND::operator!=(const BYOND::Object& lhs, const BYOND::Object& rhs)
 
 std::string BYOND::Object::AsString() const
 {
+	assert(Type() == BYOND::VariableType::String);
 	return vars.GetStringFromId(reinterpret_cast<int>(value));
 }
 
 float BYOND::Object::AsNumber() const
 {
+	assert(Type() == BYOND::VariableType::Number);
 	if (this == NULL) return 0;
 	return Pocket::DwordToFloat(reinterpret_cast<DWORD>(value));
 }
 
 BYOND::List BYOND::Object::AsList() const
 {
+	assert(Type() == BYOND::VariableType::List);
 	return vars.GetListFromId(reinterpret_cast<int>(value));
 }
 
@@ -68,7 +72,19 @@ BYOND::Object::operator bool() const {
 	return Type() != BYOND::VariableType::Null;
 }
 
+BYOND::Object::operator std::string() const {
+	return AsString();
+}
+
+BYOND::Object::operator float() const {
+	return AsNumber();
+}
+
+BYOND::Object::operator BYOND::List() const {
+	return AsList();
+}
+
 bool BYOND::Object::CheckValid() const
 {
-	return !(Type() == BYOND::VariableType::Null && reinterpret_cast<int>(value) == INVALID_VAR_VALUE);
+	return !(Type() == BYOND::VariableType::Null && reinterpret_cast<unsigned int>(value) == INVALID_VAR_VALUE);
 }

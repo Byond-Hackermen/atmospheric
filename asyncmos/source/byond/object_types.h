@@ -10,6 +10,8 @@ namespace BYOND
 	class VariableAccessProxy;
 	class Datum;
 
+	class Object;
+
 	class DatumObject : public BYOND::Object
 	{
 	public:
@@ -17,6 +19,7 @@ namespace BYOND
 		DatumObject(struct temporary_return_value_holder ret);
 		DatumObject(ObjectType type, int value);
 		DatumObject(Object);
+		DatumObject(Object*);
 
 		void Set(std::string varName, VariableType varType, unsigned int new_value) const;
 		void Set(std::string varName, std::string new_value) const;
@@ -47,6 +50,11 @@ namespace BYOND
 		template<> BYOND::List Get(std::string varName) const
 		{
 			return GetVariable(varName).AsList();
+		}
+
+		template<> BYOND::Object Get(std::string varName) const
+		{
+			return GetVariable(varName);
 		}
 
 		BYOND::Object Call(std::string procName, std::vector<Object> args) const;

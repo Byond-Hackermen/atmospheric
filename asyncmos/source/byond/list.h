@@ -5,6 +5,7 @@
 
 namespace BYOND
 {
+
 	struct ByondList {
 		Object* elements;
 		int unk1;

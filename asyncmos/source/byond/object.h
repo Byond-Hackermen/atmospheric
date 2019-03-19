@@ -9,6 +9,7 @@
 namespace BYOND
 {
 	class List;
+	class DatumObject;
 
 	class Object
 	{
@@ -22,6 +23,14 @@ namespace BYOND
 		friend bool operator==(const Object& lhs, const Object& rhs);
 		friend bool operator!=(const Object& lhs, const Object& rhs);
 		operator bool() const;
+		operator std::string() const;
+		operator float() const;
+		operator BYOND::List() const;
+		template<typename T> operator T()
+		{
+			return *reinterpret_cast<T*>(this);
+		}
+
 		BYOND::VariableType type;
 		void* value;
 
