@@ -54,8 +54,8 @@ void init_thread()
 		msg("Failed to initialize!", "heck");
 	}
 
-	SetUnhandledExceptionFilter(pls);
-	AddVectoredExceptionHandler(0, VectoredHandler);
+	//SetUnhandledExceptionFilter(pls);
+	//AddVectoredExceptionHandler(0, VectoredHandler);
 
 	vars.CallGlobalProc("to_chat", { BYOND::Variables::world, BYOND::Object("Asyncmos initialized!") });
 }
@@ -96,22 +96,40 @@ bool process_cell(BYOND::Variables::CallProcHookInfo* info)
 	return true;
 }
 
+BYOND::Obj machine_ololo;
+
+void asshole2()
+{
+	machine_ololo.Call("process", { (float)2 });
+}
+
+void asshole()
+{
+	__try {
+		asshole2();
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER) {
+		MessageBoxA(NULL, "hecc", "big heck", NULL);
+	}
+}
+
 void process_thread()
 {
-	BYOND::List mobs = vars.ReadGlobalVariable("mob_list");
+	BYOND::List mobs = vars.ReadGlobalVariable("mob_list").AsList();
 	BYOND::Mob mob = *mobs.At(1);
-	/*while (true)
+	while (true)
 	{
 		auto machines = vars.ReadGlobalVariable("machines").AsList();
 		for (int i = 0; i < machines.Length(); i++)
 		{
 			BYOND::Obj machine = machines.At(i)->As(BYOND::Obj);
-			MessageBoxA(NULL, std::to_string(static_cast<int>(machine.Type())).c_str(), "machine type", NULL);
+			//MessageBoxA(NULL, std::to_string(static_cast<int>(machine.Type())).c_str(), "machine type", NULL);
 			MessageBoxA(NULL, std::to_string(reinterpret_cast<int>(machine.value)).c_str(), "machine value", NULL);
-			machine.Call("process", { (float)2 });
+			machine_ololo = machine;
+			asshole();
 			Sleep(2000 / machines.Length());
 		}
-	}*/
+	}
 	/*auto mobs = vars.ReadGlobalVariable("mob_list").AsList();
 	BYOND::Mob me;
 	for(int i=0; i<mobs.Length(); i++)

@@ -76,14 +76,22 @@ bool BYOND::Variables::HookGlobalTimer() //gonna need a function to unhook and c
 	return true;
 }
 
+CRITICAL_SECTION g_critSec;
+
 BYOND::temporary_return_value_holder callglobalprochook(int unk1, int unk2, int const_2, unsigned int proc_id, int const_0, int unk3, int unk4, BYOND::Object* argList, int argListLen, int const_0_2, int const_0_3)
 {
-	std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callglobalproc_mutex);
-	return BYOND::Variables::callGlobalProc(unk1, unk2, const_2, proc_id, const_0, unk3, unk4, argList, argListLen, const_0_2, const_0_3);
+	//std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
+	MessageBoxA(nullptr, "entering", "oh crap!", 0);
+	EnterCriticalSection(&g_critSec);
+	auto res = BYOND::Variables::callGlobalProc(unk1, unk2, const_2, proc_id, const_0, unk3, unk4, argList, argListLen, const_0_2, const_0_3);
+	LeaveCriticalSection(&g_critSec);
+	MessageBoxA(nullptr, "leaving", "oh crap!", 0);
+	return res;
 }
 
 bool BYOND::Variables::MakeProcCallThreadsafe()
 {
+	InitializeCriticalSection(&g_critSec);
 	NTSTATUS result = LhInstallHook(
 		callGlobalProc,
 		callglobalprochook,
@@ -106,7 +114,7 @@ BYOND::temporary_return_value_holder callprochook(int unk1, int unk2, BYOND::Pro
 		pushad
 		pushfd
 		}
-	//std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
+	std::lock_guard<std::recursive_mutex> lock(BYOND::Variables::callproc_mutex);
 	std::string name(BYOND::Variables::getStringPointerFromId(procName)->stringData);
 	datumType = static_cast<BYOND::ObjectType>(static_cast<unsigned char>(datumType));
 	if(vars.callProcHooks.find(name) != vars.callProcHooks.end())
