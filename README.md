@@ -1,3 +1,7 @@
+# This repo has been deprecated!
+
+Go here instead: https://github.com/goonstation/Lunar-Dreamland
+
 # Asyncmos
 Poorly named attempt at reverse engineering BYOND's server software. This project aims to enable, among others, variable modification and proc calling outside of DM code. It is written in C++, compiled into a DLL and loaded via `call()()`.
 
